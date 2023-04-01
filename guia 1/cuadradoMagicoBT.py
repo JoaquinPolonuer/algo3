@@ -1,21 +1,14 @@
 import numpy as np
 
-
-def esCuadradoMagico(C):
-    sumas_filas = np.sum(C, axis=0)
-    sumas_columnas = np.sum(C, axis=1)
-
-    suma_diagonal_1 = np.diag(C).sum()
-    suma_diagonal_2 = np.diag(np.fliplr(C)).sum()
-
+# No se como hacer para que esta solucion no sea O(n)
+def es_cuadrado_magico(): 
     return all(
         [
-            suma_diagonal_2 == suma_diagonal_1,
-            np.all(sumas_filas == suma_diagonal_1),
-            np.all(sumas_columnas == suma_diagonal_1),
+            suma_diagonales[0] == suma_diagonales[1],
+            np.all(suma_filas == suma_diagonales[0]),
+            np.all(suma_columnas == suma_diagonales[0]),
         ]
     )
-
 
 def obtener_siguiente_posicion(i, j):
     if j + 1 < n:
@@ -23,29 +16,50 @@ def obtener_siguiente_posicion(i, j):
     else:
         return i + 1, 0
 
-
-def cuantos_cuadrados_magicos(C, i, j, num_no_utilizados):
+def cuantos_cuadrados_magicos(i, j):
     global cuantos
-
     if i == n:
-        if esCuadradoMagico(C):
-            # print(C)
+        if es_cuadrado_magico():
             cuantos += 1
     else:
-        for num in num_no_utilizados:
+        for num in range(1, n**2 + 1):
+            if usados[num - 1]:
+                continue
+
             i_sig, j_sig = obtener_siguiente_posicion(i, j)
 
-            nuevos_numeros_no_utilizados = list(num_no_utilizados)
-            nuevos_numeros_no_utilizados.remove(num)
+            C[i][j] = num
+            usados[num - 1] = 1
 
-            C_modificada = C.copy()
-            C_modificada[i, j] = num
+            suma_filas[i] += num
+            suma_columnas[j] += num
+            if i == j:
+                suma_diagonales[0] += num
+            if i == n - j - 1: 
+                suma_diagonales[1] += num           
+            
+            if suma_filas[i] <= (n**3 + n) / 2 \
+                and suma_columnas[j] <= (n**3 + n) / 2 :
+                cuantos_cuadrados_magicos(i_sig, j_sig)
 
-            cuantos_cuadrados_magicos(C_modificada, i_sig, j_sig, nuevos_numeros_no_utilizados)
+            usados[num-1] = 0 
+            suma_filas[i] -= num
+            suma_columnas[j] -= num
+
+            if i == j:
+                suma_diagonales[0] -= num
+            if i == n - j - 1: 
+                suma_diagonales[1] -= num    
+
 
 n = 3
 C = np.zeros((n, n))
-cuantos = 0
 
-cuantos_cuadrados_magicos(C, 0, 0, range(1, n**2 + 1))
+suma_filas = np.zeros(n)
+suma_columnas = np.zeros(n)
+suma_diagonales = np.zeros(2)
+usados = np.zeros(n**2)
+
+cuantos = 0
+cuantos_cuadrados_magicos(0,0)
 print(cuantos)
