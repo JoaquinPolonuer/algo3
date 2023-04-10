@@ -3,19 +3,41 @@
 #include <cmath>
 #include <tuple>
 using namespace std;
-vector<vector<int>> cuadradoMagicoKesimo(int n, int i, int j, vector<vector<int>>& cm,int k,vector<int>& numeros, vector<int>& sumasFil, vector<int>& sumasCol, tuple<int,int>& sumasDiag){
+
+int n, k;
+vector<vector<int>> cm;
+vector<int> sumasFil;
+vector<int> sumasCol;
+vector<int> sumasDiag;
+vector<bool> numeros;
+int m;
+
+
+void imprimir_matriz()
+{
+    for (int fila = 0; fila < n; fila++)
+    {
+        for (int columna = 0; columna < n; columna++)
+        {
+            cout << cm[fila][columna] << " ";
+        }
+        cout << endl;
+    }
+    cout << endl;
+}
+
+
+void cuadradoMagicoKesimo(int i, int j){
     if (j==n){
-        return cuadradoMagicoKesimo(n,i+1,0,cm,k,numeros,sumasFil,sumasCol,sumasDiag);
+        return cuadradoMagicoKesimo(i+1,0);
     }
     if(i==n){
-        k=k-1;
+        k--;
         if(k==0){
-            return cm;
-        }else{
-            //return cuadradoMagicoKesimo(n,0,0,cm,k,numeros,sumasFil,sumasCol,sumasDiag); //esto siempre daría el primer CM
+            imprimir_matriz();
         }
     }
-    int m = (n*n*n+n)/2;
+
     for (int l = 1; l <= n * n; l++) {
         bool valido = true;
         if (numeros[l - 1] == 1){
@@ -34,19 +56,19 @@ vector<vector<int>> cuadradoMagicoKesimo(int n, int i, int j, vector<vector<int>
             valido = false;
         }
 
-        if (i==j && get<0>(sumasDiag) + l > m){
+        if (i==j && sumasDiag[0] + l > m){
             valido = false;
         }
 
-        if (i==j && i == n - 1 && get<0>(sumasDiag) + l != m){
+        if (i==j && i == n - 1 && sumasDiag[0] + l != m){
             valido = false;
         }
 
-        if (i==n-j-1 && get<1>(sumasDiag) + l > m) {
+        if (i==n-j-1 && sumasDiag[1] + l > m) {
             valido = false;
         }
 
-        if (i==n-j-1 && i == n - 1 && get<1>(sumasDiag) + l != m) {
+        if (i==n-j-1 && i == n - 1 && sumasDiag[1] + l != m) {
             valido = false;
         }
 
@@ -56,44 +78,37 @@ vector<vector<int>> cuadradoMagicoKesimo(int n, int i, int j, vector<vector<int>
             sumasFil[i] += l;
             sumasCol[j] += l;
             if (i==j) {
-                get<0>(sumasDiag) += l;
+                sumasDiag[0] += l;
             }
             if (i==n-j-1) {
-                get<1>(sumasDiag) += l;
+                sumasDiag[1] += l;
             }
 
-            vector<vector<int>> sig = cuadradoMagicoKesimo(n,i,j+1,cm,k,numeros,sumasFil,sumasCol,sumasDiag);
+           cuadradoMagicoKesimo(i,j+1);
 
             numeros[l - 1] = 0;
             sumasFil[i] -= l;
             sumasCol[j] -= l;
-            if (i==j) get<0>(sumasDiag) -= l;
-            if (i==n-j-1) get<1>(sumasDiag) -= l;
+            if (i==j) sumasDiag[0] -= l;
+            if (i==n-j-1) sumasDiag[1] -= l;
         }
     }
-    vector<vector<int>> error(1,vector<int>(1,-1));
-    return cm;
 }
 
 int main() {
-    std::cout << "Cuadrado magico:" << std::endl;
+    cout << "Cuadrado magico:" << endl;
     
-    int n=3;
-    vector<vector<int>> cuadrado(n,vector<int>(n));
-    vector<int> numeros(n*n,0);
-    vector<int> sumasFilas(n,0);
-    vector<int> sumasColumnas(n,0);
-    tuple<int,int> sumasDiagonales(0,0);
+    cin >> n >> k;
+    cm.resize(n,vector<int>(n,0));
+    sumasDiag.resize(2, 0);
+    sumasFil.resize(n, 0);
+    sumasCol.resize(n, 0);
+    numeros.resize(pow(n, 2));
+    m = (pow(n, 3) + n) / 2;
 
-    vector<vector<int>> m = cuadradoMagicoKesimo(n,0,0,cuadrado,2,numeros,sumasFilas,sumasColumnas,sumasDiagonales);
+    cuadradoMagicoKesimo(0,0);
 
-    for (const auto& fila:m) {
-        for(auto elem : fila){
-            printf("%d",elem);
-            printf(" ");
-        }
-        printf("\n");
-    }
+    
     return 0;
 }
 
