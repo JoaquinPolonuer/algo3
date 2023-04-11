@@ -6,7 +6,7 @@ using namespace std;
 
 int c, r, n, m;
 vector<int> v;
-vector<vector<int>> memo;  //-1 no definido, 0 false, 1 true
+vector<vector<int>> memo; //-1 no definido, 0 false, 1 true
 int potencia_modular(int a, int k)
 {
     if (k == 1)
@@ -24,53 +24,68 @@ int modulo_positivo(int a)
 {
     return (m + (a % m)) % m;
 }
-bool operaciones(int acum, int i){
-    if(memo[acum][i]!=-1){
-        return memo[acum][i]==1;
+bool operaciones(int acum, int i)
+{
+    if (memo[acum][i] != -1)
+    {
+        return memo[acum][i] == 1;
     }
 
     bool res;
-    if(i==n){
-        res = (acum==r);
-    }else {
+    if (i == n)
+    {
+        res = (acum == r);
+    }
+    else
+    {
         bool suma = operaciones(modulo_positivo(acum + v[i]), i + 1);
 
         bool mult = operaciones(modulo_positivo(acum * v[i]), i + 1);
 
-        bool pot = operaciones(modulo_positivo(potencia_modular(acum,v[i])), i + 1);
+        bool pot = operaciones(modulo_positivo(potencia_modular(acum, v[i])), i + 1);
 
         bool resta = operaciones(modulo_positivo(acum - v[i]), i + 1);
 
         res = suma or mult or pot or resta;
     }
-    if (res) {
+    if (res)
+    {
         memo[acum][i] = 1;
-    } else {
+    }
+    else
+    {
         memo[acum][i] = 0;
     }
     return res;
 }
 
-int main(){
+int main()
+{
     vector<string> respuestas;
     cin >> c;
-    for(int j=0;j<c;j++){
+    for (int j = 0; j < c; j++)
+    {
         cin >> n >> r >> m;
         v = vector<int>();
-        for(int k=0;k<n;k++){
+        for (int k = 0; k < n; k++)
+        {
             int elem;
             cin >> elem;
             v.push_back(elem);
         }
-        memo = vector<vector<int>>(m,vector<int>(n+1,-1));
-        bool res = operaciones(v[0]%m,1);
-        if(res){
+        memo = vector<vector<int>>(m, vector<int>(n + 1, -1));
+        bool res = operaciones(modulo_positivo(v[0]), 1);
+        if (res)
+        {
             respuestas.push_back("Si");
-        }else{
+        }
+        else
+        {
             respuestas.push_back("No");
         }
     }
-    for(const auto& elem : respuestas){
+    for (const auto &elem : respuestas)
+    {
         cout << elem << endl;
     }
     return 0;

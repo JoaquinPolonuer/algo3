@@ -1,9 +1,10 @@
-#include <vector>
 #include <iostream>
+#include <vector>
 #include <tuple>
+
 using namespace std;
 
-int n;
+int N;
 vector<tuple<int, int, int>> A;
 
 void merge(vector<tuple<int, int, int>> &arr, int left, int middle, int right)
@@ -54,42 +55,46 @@ void mergeSort(vector<tuple<int, int, int>> &arr, int left, int right)
     }
 }
 
-void actividades()
+int main()
 {
-    mergeSort(A, 0, A.size() - 1); // O(n logn) --> mergeSort
-    int ultAct = 0;
-    vector<int> S;
+    cin >> N;
+
+    int s_i, t_i;
+    for (int i = 0; i < N; i++)
+    {
+        cin >> s_i >> t_i;
+        A.push_back(make_tuple(i + 1, s_i, t_i));
+    }
+
+    mergeSort(A, 0, A.size() - 1);
+
+    int fin_ultima_actividad = 0;
+    vector<int> indices;
     for (int i = 0; i < A.size(); i++)
     {
-        if (get<1>(A[i]) >= ultAct)
+        if (get<1>(A[i]) >= fin_ultima_actividad)
         {
-            S.push_back(get<0>(A[i]) + 1);
-            ultAct = get<2>(A[i]);
+            indices.push_back(get<0>(A[i]));
+            fin_ultima_actividad = get<2>(A[i]);
         }
     }
 
-    cout << S.size();
+    cout << indices.size();
     cout << endl;
 
-    for (int i = 0; i < S.size(); i++)
+    for (int i = 0; i < indices.size(); i++)
     {
-        cout << S[i] << " ";
+        cout << indices[i] << " ";
     }
-}
-
-int main()
-{
-    cin >> n;
-    A.resize(n);
-    int si, ti;
-    for (int i = 0; i < n; i++)
-    {
-        cin >> si;
-        cin >> ti;
-        A[i] = make_tuple(i, si, ti);
-    }
-
-    actividades();
-
     return 0;
 }
+
+// TENER EN CUENTA:
+// Falta hacer el algoritmo de ordena el arreglo por final de la actividad,
+// asi que no pude probarlo con el caso de prueba que dan en la consigna
+
+// No se si entendi el output esperado. Interprete que la segunda linea tiene
+// que tener los indices de las actividades realizadas y lo hice de esa forma.
+
+// Creo que el algoritmo es correcto. La dificultad seguramente este en
+// demostrarlo

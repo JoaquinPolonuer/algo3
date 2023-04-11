@@ -12,20 +12,6 @@ vector<int> suma_diagonales;
 vector<bool> utilizados;
 int numero_magico;
 
-pair<int, int> siguiente_posicion(int i, int j)
-{
-    if (j + 1 == N)
-    {
-        i += 1;
-        j = 0;
-    }
-    else
-    {
-        j++;
-    }
-    return make_pair(i, j);
-}
-
 void imprimir_matriz()
 {
     for (int fila = 0; fila < N; fila++)
@@ -50,15 +36,24 @@ void k_esimo_cuadrado(int i, int j)
         k--;
     }
 
-    pair<int, int> siguientes = siguiente_posicion(i, j);
-    int i_sig = siguientes.first;
-    int j_sig = siguientes.second;
-
-    for (int num = 1; num < utilizados.size() + 1; num++)
+    int i_sig, j_sig;
+    for (int num = 1; num <= utilizados.size(); num++)
     {
+
         if (utilizados[num - 1])
         {
             continue;
+        }
+
+        if (j + 1 == N)
+        {
+            i_sig = i + 1;
+            j_sig = 0;
+        }
+        else
+        {
+            i_sig = i;
+            j_sig = j + 1;
         }
 
         C[i][j] = num;
@@ -71,7 +66,10 @@ void k_esimo_cuadrado(int i, int j)
         if (i + j == N - 1)
             suma_diagonales[1] += num;
 
-        if (suma_filas[i] <= numero_magico && suma_columnas[j] <= numero_magico)
+        if (suma_filas[i] <= numero_magico &&
+            suma_columnas[j] <= numero_magico &&
+            suma_diagonales[0] <= numero_magico &&
+            suma_diagonales[1] <= numero_magico)
         {
             k_esimo_cuadrado(i_sig, j_sig);
         }
@@ -103,12 +101,20 @@ int main()
 }
 
 // TENER EN CUENTA:
-    // Actualmente funciona, pero es rara y poco eficiente la 
-    // forma en la que devuelvo la matrix. Notar que se tiene una variable global k y 
-    // que el codigo siempre encuentra TODOS los cuadrados magicos.
+// Actualmente funciona, pero es rara y poco eficiente la
+// forma en la que devuelvo la matrix. Notar que se tiene una variable global k y
+// que el codigo siempre encuentra TODOS los cuadrados magicos.
+// - Podriamos dejar la variable global y poner una poda mas, tal que si
+// el k ya se paso, no siga la recursion
+// - Tambien guardamos un puntero cuando lleguemos a el kesimo, si al finalizar el 
+// puntero es nulo, devolvemos -1. Notar que la complejidad de crear un puntero
+// que apunte a este lugar en O(n^2)
 
-    // Las podas tienen en cuenta filas y columnas, y se chequean las diagonales al 
-    // finalizar
+// Las podas tienen en cuenta filas y columnas, y se chequean las diagonales al
+// finalizar
+// - En este codigo faltan agregar mas podas
 
-    // Capaz habria que poner un if/else que separe el caso base del recursivo, aunque
-    // como esta anda
+// Capaz habria que poner un if/else que separe el caso base del recursivo, aunque
+// como esta anda
+
+// Falta imprimir -1
