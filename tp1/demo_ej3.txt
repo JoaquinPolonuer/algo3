@@ -1,0 +1,27 @@
+***DEMOSTRACIÓN EJ3***
+
+Por inducción en i vamos a demostrar que nuestra solución se puede extender a una solución válida.
+
+Sea nuestra solución de la pinta: {B1,B2,...,BK}
+
+Caso base:
+	i=0
+	Nuestra solución no tiene ninguna elección => se puede extender a cualquier solución óptima
+
+Paso inductivo:
+	i>0
+	HI: {B1,B2,...,Bi} se puede extender a una sol opt con {Ci+1,Ci+2,...,Cj} de j elementos.
+
+	QVQ: Reemplazando Ci+1 por Bi+1 puedo seguir usando esa extensión desde Ci+2
+	Nuestro algoritmo siempre elige para la próxima actividad la que tenga horario de fin mínima (y no se solape),
+	Por lo tanto, por definición: 
+												Bi+1[1] <= Ci+1[1] (Fin de Bi+1 es menor o igual que fin Ci+1)
+
+	Y como la extensión es una solución válida: 
+												Ci+1[1]<=Ci+2[0]   (es decir, no se solapa con Ci+2)
+
+	Por transitividad de la desigualdad: 
+												Bi+1[1] <= Ci+2[0]. 
+	Es decir, el horario de fin de Bi+1 es menor o igual que el de comienzo de Ci+2. Además nuestro algoritmo eligió Bi+1 de manera que no se solape con Bi.
+
+	=> Puedo elegir Bi+1 y la extensión {Ci+2,...,Cj} me genera una solución válida por lo que vimos recien, y es una solución óptima por HI, ya que la cantidad de elementos es la misma, j. (Def de sol. óptima)
