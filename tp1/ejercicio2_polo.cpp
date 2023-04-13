@@ -7,7 +7,7 @@ using namespace std;
 long long int c;
 long long int n, r, m;
 vector<long long int> v;
-vector<vector<long long int>> dp;
+vector<vector<int>> dp;
 
 long long int potencia_modular(long long int a, long long int k)
 {
@@ -87,7 +87,7 @@ int main()
             cin >> x;
             v.push_back(x);
         }
-        dp = vector<vector<long long int>>(m, vector<long long int>(n + 1, -1));
+        dp = vector<vector<int>>(m, vector<int>(n + 1, -1));
         
         bool res = operaciones(modulo_positivo(v[0]), 1);
         if (res)
