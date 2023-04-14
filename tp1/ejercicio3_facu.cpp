@@ -6,57 +6,28 @@ using namespace std;
 int n;
 vector<tuple<int, int, int>> A;
 
-void merge(vector<tuple<int, int, int>> &arr, int left, int middle, int right)
-{
-    int n1 = middle - left + 1;
-    int n2 = right - middle;
-    vector<tuple<int, int, int>> L(n1), R(n2);
-    for (int i = 0; i < n1; i++)
-        L[i] = arr[left + i];
-    for (int j = 0; j < n2; j++)
-        R[j] = arr[middle + 1 + j];
-    int i = 0, j = 0, k = left;
-    while (i < n1 && j < n2)
-    {
-        if (get<2>(L[i]) <= get<2>(R[j]))
-        {
-            arr[k] = L[i];
-            i++;
+void bucketSort(vector<tuple<int,int,int>>& v){
+    int max_val = 0;
+    for (int i = 0; i < v.size(); i++) {
+        max_val = max(max_val, get<2>(v[i]));
+    }
+
+    vector<vector<tuple<int,int,int>>> buckets(max_val+1);
+    for(auto t : v){
+        buckets[get<2>(t)].push_back(t);
+    }
+    int indice=0;
+    for(int i=0;i<=max_val;i++){
+        for(int j=0;j<buckets[i].size();j++){
+            v[indice]=buckets[i][j];
+            indice++;
         }
-        else
-        {
-            arr[k] = R[j];
-            j++;
-        }
-        k++;
-    }
-    while (i < n1)
-    {
-        arr[k] = L[i];
-        i++;
-        k++;
-    }
-    while (j < n2)
-    {
-        arr[k] = R[j];
-        j++;
-        k++;
-    }
-}
-void mergeSort(vector<tuple<int, int, int>> &arr, int left, int right)
-{
-    if (left < right)
-    {
-        int middle = left + (right - left) / 2;
-        mergeSort(arr, left, middle);
-        mergeSort(arr, middle + 1, right);
-        merge(arr, left, middle, right);
     }
 }
 
 void actividades()
 {
-    mergeSort(A, 0, A.size() - 1); // O(n logn) --> mergeSort
+    bucketSort(A); // O(n) --> bucketSort
     int ultAct = 0;
     vector<int> S;
     for (int i = 0; i < A.size(); i++)
