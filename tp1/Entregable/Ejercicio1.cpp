@@ -6,12 +6,12 @@ using namespace std;
 
 int N, k;
 vector<vector<int>> C;              // C es la matriz global donde se van calculando los cuadrados mágicos
-vector<vector<int>> matrizSolucion; // matrizSolución va a guardar la instancia de C que nos interesa
 vector<int> suma_filas;             // Suma de las filas de C
 vector<int> suma_columnas;          // Suma de las columnas de C
 vector<int> suma_diagonales;        // Suma de las diagonales de C
 vector<bool> utilizados;            // Guardo si utilice un número
 int numero_magico;                  // Precalculo el número mágico
+bool haySolucion;                   // Booleano para cuando no existe la matriz
 
 void imprimir_matriz(vector<vector<int>> M)
 {
@@ -33,7 +33,8 @@ void cuadradoMagicoKesimo(int i, int j)
         k--;
         if (k == 0)
         {
-            matrizSolucion = C;
+            imprimir_matriz(C);
+	        haySolucion=true;
         }
     }
 
@@ -106,18 +107,13 @@ int main()
     suma_columnas.resize(N, 0);
     utilizados.resize(pow(N, 2));
     numero_magico = (pow(N, 3) + N) / 2;
-    matrizSolucion.resize(N, vector<int>(N, -1));
+    haySolucion=false;
 
     cuadradoMagicoKesimo(0, 0);
 
-    if (matrizSolucion[0][0] == -1)
+    if (not haySolucion)
     {
         cout << "-1" << endl;
     }
-    else
-    {
-        imprimir_matriz(matrizSolucion);
-    }
-
     return 0;
 }
