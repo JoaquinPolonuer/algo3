@@ -28,10 +28,6 @@ void imprimir_matriz(vector<vector<int>> M)
 
 void cuadradoMagicoKesimo(int i, int j)
 {
-    if (j == N)
-    {
-        return cuadradoMagicoKesimo(i + 1, 0);
-    }
     if (i == N)
     {
         k--;
@@ -41,6 +37,7 @@ void cuadradoMagicoKesimo(int i, int j)
         }
     }
 
+    int i_sig, j_sig;
     for (int l = 1; l <= N * N; l++)
     {
         bool valido = true;
@@ -61,6 +58,18 @@ void cuadradoMagicoKesimo(int i, int j)
 
         if (valido)
         {
+
+            if (j + 1 == N)
+            {
+                i_sig = i + 1;
+                j_sig = 0;
+            }
+            else
+            {
+                i_sig = i;
+                j_sig = j + 1;
+            }
+
             C[i][j] = l;
             utilizados[l - 1] = 1;
             suma_filas[i] += l;
@@ -74,7 +83,7 @@ void cuadradoMagicoKesimo(int i, int j)
                 suma_diagonales[1] += l;
             }
 
-            cuadradoMagicoKesimo(i, j + 1);
+            cuadradoMagicoKesimo(i_sig, j_sig);
 
             utilizados[l - 1] = 0;
             suma_filas[i] -= l;
