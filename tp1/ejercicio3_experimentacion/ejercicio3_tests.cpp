@@ -12,7 +12,11 @@ vector<tuple<int, int, int>> A;
 
 void bucketSort()
 {
-    vector<vector<tuple<int, int, int>>> buckets(2 * A.size() + 1);
+    int max_val = 0;
+    for (int i = 0; i < A.size(); i++) {
+        max_val = max(max_val, get<2>(A[i]));
+    }
+    vector<vector<tuple<int,int,int>>> buckets(max_val+1);
 
     for (auto a : A)
     {
@@ -63,7 +67,7 @@ double measure()
     return diff.count();
 }
 
-vector<tuple<int, int, int>> construir_vector(int n)
+vector<tuple<int, int, int>> construir_vector_random(int n)
 {
 
     vector<tuple<int, int, int>> res;
@@ -74,7 +78,23 @@ vector<tuple<int, int, int>> construir_vector(int n)
     {
         int fin_act = rand() % (2 * n);
         int inic_act = rand() % (fin_act + 1);
-        numero = make_tuple(i, inic_act, fin_act);
+        numero = make_tuple(i + 1, inic_act, fin_act);
+        res.push_back(numero);
+    }
+    return res;
+}
+
+vector<tuple<int, int, int>> construir_vector_sorted(int n)
+{
+
+    vector<tuple<int, int, int>> res;
+    srand(time(NULL));
+    tuple<int, int, int> numero;
+
+    for(int i=0; i < 2*n; i+=2){
+        int fin_act = i+1;
+        int inic_act = i;
+        numero = make_tuple(i + 1, inic_act, fin_act);
         res.push_back(numero);
     }
     return res;
@@ -84,13 +104,17 @@ int main()
 {
     int repeat = 10;
     ofstream output_file;
-    output_file.open("runtime_random.csv");
+
+    // output_file.open("runtime_random.csv");
+    output_file.open("runtime_sorted.csv");
     output_file << "n,time\n";
 
     int limit = 1 << 27;
     for (int n = 65536; n < limit; n *= 2)
     {
-        A = construir_vector(n);
+        // A = construir_vector_random(n);
+        A = construir_vector_sorted(n);
+
 
         double counter = 0;
         for (int ignore = 0; ignore < repeat; ignore++)
