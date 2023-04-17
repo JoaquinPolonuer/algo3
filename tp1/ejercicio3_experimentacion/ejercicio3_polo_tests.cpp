@@ -44,36 +44,40 @@ void actividades()
         }
     }
 
-    cout << indices.size();
-    cout << endl;
+    // cout << indices.size();
+    // cout << endl;
 
-    for (int i = 0; i < indices.size(); i++)
-    {
-        cout << indices[i] << " ";
-    }
+    // for (int i = 0; i < indices.size(); i++)
+    // {
+    //     cout << indices[i] << " ";
+    // }
 }
 
 
-
-vector<int> read_input(int size)
-{
-    vector<int> input(size);
-    string file_name = "inputs/input_random_" + to_string(size);
-    cout << file_name << endl;
-    ifstream read_file(file_name);
-    for (int i = 0; i < size; i++)
-        read_file >> input[i];
-    read_file.close();
-    return input;
-}
-
-double measure(vector<int> a)
+double measure()
 {
     auto start = chrono::high_resolution_clock::now();
     actividades();
     auto stop = chrono::high_resolution_clock::now();
     chrono::duration<double> diff = stop - start;
     return diff.count();
+}
+
+vector<tuple<int, int, int>> construir_vector(int n)
+{
+
+    vector<tuple<int, int, int>> res;
+    srand(time(NULL));
+    tuple<int, int, int> numero;
+
+    for (int i = 0; i < n; i++)
+    {
+        int fin_act = rand() % (2 * n);
+        int inic_act = rand() % (fin_act + 1);
+        numero = make_tuple(i, inic_act, fin_act);
+        res.push_back(numero);
+    }
+    return res;
 }
 
 int main()
@@ -86,11 +90,11 @@ int main()
     int limit = 1 << 27;
     for (int n = 65536; n < limit; n *= 2)
     {
-        vector<int> input = read_input(n);
+        A = construir_vector(n);
 
         double counter = 0;
         for (int ignore = 0; ignore < repeat; ignore++)
-            counter += measure(input);
+            counter += measure();
 
         output_file << n << "," << counter / repeat << endl;
     }
