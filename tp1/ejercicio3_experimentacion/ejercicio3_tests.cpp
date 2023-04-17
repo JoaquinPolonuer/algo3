@@ -12,11 +12,7 @@ vector<tuple<int, int, int>> A;
 
 void bucketSort()
 {
-    int max_val = 0;
-    for (int i = 0; i < A.size(); i++) {
-        max_val = max(max_val, get<2>(A[i]));
-    }
-    vector<vector<tuple<int,int,int>>> buckets(max_val+1);
+    vector<vector<tuple<int,int,int>>> buckets(2*A.size()+1);
 
     for (auto a : A)
     {
@@ -84,6 +80,41 @@ vector<tuple<int, int, int>> construir_vector_random(int n)
     return res;
 }
 
+vector<tuple<int, int, int>> construir_vector_iguales(int n)
+{
+
+    vector<tuple<int, int, int>> res;
+    srand(time(NULL));
+    tuple<int, int, int> numero;
+
+    int fin_act = rand() % (2 * n);
+    int inic_act = rand() % (fin_act + 1);
+
+    for (int i = 0; i < n; i++)
+    {
+        numero = make_tuple(i + 1, inic_act, fin_act);
+        res.push_back(numero);
+    }
+    return res;
+}
+
+vector<tuple<int, int, int>> construir_vector_acotado(int n)
+{
+
+    vector<tuple<int, int, int>> res;
+    srand(time(NULL));
+    tuple<int, int, int> numero;
+
+    for (int i = 0; i < n; i++)
+    {
+        int fin_act = rand() % n;
+        int inic_act = rand() % (fin_act + 1);
+        numero = make_tuple(i + 1, inic_act, fin_act);
+        res.push_back(numero);
+    }
+    return res;
+}
+
 vector<tuple<int, int, int>> construir_vector_sorted(int n)
 {
 
@@ -102,19 +133,24 @@ vector<tuple<int, int, int>> construir_vector_sorted(int n)
 
 int main()
 {
-    int repeat = 10;
+    int repeat = 5;
     ofstream output_file;
 
     // output_file.open("runtime_random.csv");
-    output_file.open("runtime_sorted.csv");
+    // output_file.open("runtime_sorted.csv");
+    // output_file.open("runtime_acotado.csv");
+    output_file.open("runtime_iguales.csv");
+
+
     output_file << "n,time\n";
 
     int limit = 1 << 27;
     for (int n = 65536; n < limit; n *= 2)
     {
         // A = construir_vector_random(n);
-        A = construir_vector_sorted(n);
-
+        // A = construir_vector_sorted(n);
+        // A = construir_vector_acotado(n);
+        A = construir_vector_iguales(n);
 
         double counter = 0;
         for (int ignore = 0; ignore < repeat; ignore++)
