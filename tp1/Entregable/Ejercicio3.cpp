@@ -9,7 +9,7 @@ vector<tuple<int, int, int>> A;
 
 void bucketSort()
 {
-    vector<vector<tuple<int, int, int>>> buckets(2 * A.size() + 1);
+    vector<vector<tuple<int,int,int>>> buckets(2*A.size()+1);
 
     for (auto a : A)
     {
