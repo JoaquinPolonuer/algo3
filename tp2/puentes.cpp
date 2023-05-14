@@ -75,6 +75,8 @@ int main()
 
     memo = vector<int>(N + 1, -1);
 
+
+    // Podria guardar una lista de aristas primero
     for (int i = 0; i < M; i++)
     {
         int v, w;
@@ -84,17 +86,22 @@ int main()
         aristas[w].push_back(v);
     }
 
+    // Luego construir el grafo a partir de esa lista de aristas
     dfs(1);
-
 
     vector<pair<int, int>> puentes;
     for (int i = 1; i <= N; i++)
     {
+        // Seria util tener una funcion O(1) que me diga si es puente
         if (cubren(i) == 0 and padre[i] != -1)
         {   
             puentes.push_back(make_pair(padre[i], i));
         }
     }
+
+    // Luego podemos hacer dfs/bfs pero que no use aristas puente
+    // Esto lo hariamos con la funcion O(1) de arriba
+    // O reconstruyendo el grafo y haciendo bfs normal
     
     cout << "listo";
 }
