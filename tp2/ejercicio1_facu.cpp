@@ -8,21 +8,21 @@ typedef long long ll;
 #define GRIS 1
 #define NEGRO 2
 
-int N,M;
-vector<vector<int>> vecinos; //Lista de adyacencia
-vector<tuple<int,int>> puentes;
-vector<int> backConExtremoSuperiorEn;
-vector<int> backConExtremoInferiorEn;
-vector<vector<int>> treeEdges;
-vector<int> estado;
-vector<int> padres;
-int elementos;
+ll N,M;
+vector<vector<ll>> vecinos; //Lista de adyacencia
+vector<tuple<ll,ll>> puentes;
+vector<ll> backConExtremoSuperiorEn;
+vector<ll> backConExtremoInferiorEn;
+vector<vector<ll>> treeEdges;
+vector<ll> estado;
+vector<ll> padres;
+ll elementos;
 
-void dfs(int v)
+void dfs(ll v)
 {
     estado[v] = GRIS;
     elementos++;
-    for (int u : vecinos[v])
+    for (ll u : vecinos[v])
     {
         if(u==-1){
             continue;
@@ -44,14 +44,13 @@ void dfs(int v)
     }
     estado[v] = NEGRO;
 }
-vector<int> memo;
-
-int cubren(int v, int p=-1){ //TODO: Falta aplicarle programación dinámica
+vector<ll> memo;
+ll cubren(ll v, ll p=-1){
     if (memo[v] != -1) return memo[v];
-    int res=0;
+    ll res=0;
     res += backConExtremoInferiorEn[v];
     res -= backConExtremoSuperiorEn[v];
-    for(int hijo : treeEdges[v]){
+    for(ll hijo : treeEdges[v]){
         if(hijo != p){
             res += cubren(hijo, v);
         }
@@ -61,11 +60,11 @@ int cubren(int v, int p=-1){ //TODO: Falta aplicarle programación dinámica
 
 double probaDePerder(){
     //Obs: combinatorio(N,2) = N(N-1)/2 Para cualquier N. Usamos esto ya que solo necesitamos cuando r=2.
-    int cantDeJugar = N*(N-1)/2;
-    int cantDeCC = 0;
-    vector<int> verticesEnCC = vector<int>();
-    estado = vector<int>(N+1,0);
-    for(int i=1;i<N+1;i++){
+    ll cantDeJugar = N*(N-1)/2;
+    ll cantDeCC = 0;
+    vector<ll> verticesEnCC = vector<ll>();
+    estado = vector<ll>(N+1,0);
+    for(ll i=1;i<N+1;i++){
         if (estado[i]==0){
             elementos=0;
             dfs(i);
@@ -73,9 +72,9 @@ double probaDePerder(){
             verticesEnCC.push_back(elementos);
         }
     }
-    int cantDeGanar = 0;
-    for(int c : verticesEnCC){
-        int aux;
+    ll cantDeGanar = 0;
+    for(ll c : verticesEnCC){
+        ll aux;
         if(c>=2){
             aux = c*(c-1)/2;
         }else{
@@ -83,34 +82,35 @@ double probaDePerder(){
         }
         cantDeGanar+=aux;
     }
-    int cantDePerder = cantDeJugar-cantDeGanar;
+    ll cantDePerder = cantDeJugar-cantDeGanar;
     double res = double(cantDePerder)/double(cantDeJugar);
     return res;
 }
 
 int main(){
     cin >> N;cin >> M;
-    vecinos = vector<vector<int>>(N+1,vector<int>());
-    for(int i=0;i<M;i++){
-        int v, w;
+    vecinos = vector<vector<ll>>(N+1,vector<ll>());
+    for(ll i=0;i<M;i++){
+        ll v, w;
         cin >> v; cin >> w;
         vecinos[v].push_back(w);
         vecinos[w].push_back(v);
     }
+
     //Buscar los puentes:
-    backConExtremoInferiorEn = vector<int>(N+1,0);
-    backConExtremoSuperiorEn = vector<int>(N+1,0);
-    estado = vector<int>(N+1,0);
-    padres = vector<int>(N+1,-1);
-    treeEdges = vector<vector<int>>(N+1,vector<int>());
-    for(int i=1;i<N+1;i++){
+    backConExtremoInferiorEn = vector<ll>(N+1,0);
+    backConExtremoSuperiorEn = vector<ll>(N+1,0);
+    estado = vector<ll>(N+1,0);
+    padres = vector<ll>(N+1,-1);
+    treeEdges = vector<vector<ll>>(N+1,vector<ll>());
+    for(ll i=1;i<N+1;i++){
         if (estado[i]==0){
-            dfs(i); //Asegurarnos que buscamos en todo el grafo por si no es conexo
+            dfs(i); //Asegurarnos que buscamos en to do el grafo por si no es conexo
         }
     }
-    memo = vector<int>(N+1,-1);
-    puentes = vector<tuple<int,int>>();
-    for(int i=1;i<N+1;i++){
+    memo = vector<ll>(N+1,-1);
+    puentes = vector<tuple<ll,ll>>();
+    for(ll i=1;i<N+1;i++){
         if(cubren(i)==0){
             if (padres[i]>0) {
                 puentes.push_back(make_tuple(i,padres[i]));
@@ -118,16 +118,16 @@ int main(){
         }
     }
     //Elimino las aristas puentes
-    //TODO: En lugar de eliminar las aristas le pongo -1 y en DFS me fijo que los vecinos no sean -1
+    //En lugar de eliminar las aristas le pongo -1 y en DFS me fijo que los vecinos no sean -1
     for(auto arista : puentes){
-        int u = get<0>(arista);
-        int v = get<1>(arista);
-        for (int i = 0;i< vecinos[u].size();i++) {
+        ll u = get<0>(arista);
+        ll v = get<1>(arista);
+        for (ll i = 0;i< vecinos[u].size();i++) {
             if (vecinos[u][i] == v) {
                 vecinos[u][i]=-1;
             }
         }
-        for (int i = 0;i< vecinos[v].size();i++) {
+        for (ll i = 0;i< vecinos[v].size();i++) {
             if (vecinos[v][i] == u) {
                 vecinos[v][i]=-1;
             }
@@ -135,7 +135,6 @@ int main(){
     }
 
     double res = probaDePerder();
-    cout << fixed;
-    cout << setprecision(5) << res <<endl;
+    cout << fixed << setprecision(5) << res;
     return 0;
 }
