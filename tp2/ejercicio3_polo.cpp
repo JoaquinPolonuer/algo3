@@ -59,16 +59,20 @@ pair<double, double> kruskal()
 {
     sort(E.begin(), E.end());
 
-    ll UTP = 0;
-    ll F = 0;
+    double UTP = 0;
+    double F = 0;
 
     ll aristas = 0;
     ll ccs = N;
 
     DSU dsu(N);
 
-    for (auto [distancia, u, v] : E)
+    for (tuple<double, ll, ll> arista : E)
     {
+        double distancia = get<0>(arista);
+        ll u = get<1>(arista);
+        ll v = get<2>(arista);
+
         // si (u,v) es arista segura
         if (dsu.find(u) != dsu.find(v))
         {
@@ -101,7 +105,7 @@ int main()
 
     cin >> C;
 
-    // Mientras queden casos de test
+    // Itero por la cantidad de casos de prueba
     for (ll caso = 1; caso <= C; caso++)
     {
 
