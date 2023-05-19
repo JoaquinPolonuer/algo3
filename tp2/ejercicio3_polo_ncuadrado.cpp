@@ -25,41 +25,60 @@ double dist(pair<ll, ll> p1, pair<ll, ll> p2)
 struct DSU
 {
 
-    DSU(vector<vector<ll>> g)
+    DSU()
     {
         componente = vector<ll>(g.size());
+        mas_cercano = vector<pair<ll, double>>(g.size());
+
         for (ll v = 0; v < g.size(); v++)
             componente[v] = v;
     }
 
-    ll find(ll v)
+    tuple<ll, ll, double> proxima_arista()
     {
-        return componente[v];
+        ll u = -1;
+        ll v = -1;
+        double menor_distancia = inf;
+
+        for (int i = 0; i < mas_cercano.size(); i++)
+        {
+            if (mas_cercano[i].second < menor_distancia)
+            {
+                menor_distancia = mas_cercano[i].second;
+                u = componente[i];
+                v = mas_cercano[i].first;
+            }
+        }
+
+        return {u, v, g[u][v]};
     }
 
     void unite(ll u, ll v)
     {
 
         // Pongo u y v en la misma componente
-        for(int i = 0; i < componente.size(); i++){
-            if(componente[i] == componente[v]){
+        for (int i = 0; i < componente.size(); i++)
+        {
+            if (componente[i] == componente[v])
+            {
                 componente[i] = componente[u];
             }
         }
 
-
-        // Ahora actualizamos las adyacencias de u y v, 
+        // Ahora actualizamos las adyacencias de u y v,
         // haciendo una mezcla entre sus filas en la matriz de adyacencias
-        // A su vez, guardamos la componente mas cercana a la 
+        // A su vez, guardamos la componente mas cercana a la
         // componente que resulta de unir u y v.
         ll componente_mas_cercana = -1;
         double menor_distancia = inf;
 
-        for(int i = 0; i < g.size(); i++){
+        for (int i = 0; i < g.size(); i++)
+        {
             g[u][i] = min(g[u][i], g[v][i]);
             g[v][i] = min(g[u][i], g[v][i]);
 
-            if(g[u][i] < menor_distancia && componente[i] != componente[u]){
+            if (g[u][i] < menor_distancia && componente[i] != componente[u])
+            {
                 componente_mas_cercana = componente[i];
                 menor_distancia = g[u][i];
             }
@@ -67,20 +86,18 @@ struct DSU
 
         // Para todos los nodos, en el componente de u
         // actualizamos su componente mas cercana con su distancia
-        for(int i = 0; i < componente.size(); i++){
-            if(componente[i] == componente[u]){
-                mas_cercano[i] = make_pair(componente_mas_cercana, menor_distancia); 
+        for (int i = 0; i < componente.size(); i++)
+        {
+            if (componente[i] == componente[u])
+            {
+                mas_cercano[i] = make_pair(componente_mas_cercana, menor_distancia);
             }
         }
-
-
     }
-    
-    vector<vector<ll>> g;
-    vector<ll> componente;
-    vector<pair<ll,double>> mas_cercano;
-};
 
+    vector<ll> componente;
+    vector<pair<ll, double>> mas_cercano;
+};
 
 pair<double, double> kruskal()
 {
@@ -89,36 +106,25 @@ pair<double, double> kruskal()
 
     ll ccs = N;
 
-    DSU dsu(g);
+    DSU dsu;
 
-    for (tuple<double, ll, ll> arista : E)
+    while (ccs > W)
     {
-        double distancia = get<0>(arista);
-        ll u = get<1>(arista);
-        ll v = get<2>(arista);
+        tuple<ll, ll, double> e = dsu.proxima_arista();
 
-        // si (u,v) es arista segura
-        if (dsu.find(u) != dsu.find(v))
+        dsu.unite(get<0>(e), get<1>(e));
+
+        double distancia = get<2>(e);
+        if (distancia <= R)
         {
-            // agregar
-            dsu.unite(u, v);
-            aristas++;
-            ccs--;
-
-            if (distancia <= R)
-            {
-                UTP += (distancia * U);
-            }
-            else
-            {
-                F += (distancia * V);
-            }
+            UTP += distancia * U;
+        }
+        else
+        {
+            F += distancia * V;
         }
 
-        if (ccs == W)
-        {
-            break;
-        }
+        ccs--;
     }
 
     return make_pair(UTP, F);
@@ -139,7 +145,7 @@ int main()
         // Esto nos va a permitir definir el grafo
         // con las distancias entre oficinas
         oficinas = vector<pair<ll, ll>>();
-        g = vector<vector<ll>>();
+        g = vector<vector<ll>>(N, vector<ll>(N));
         for (ll i = 0; i < N; i++)
         {
             // Tomo las coordenadas de la iesima oficina
