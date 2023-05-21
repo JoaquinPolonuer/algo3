@@ -32,6 +32,21 @@ struct DSU
 
         for (ll v = 0; v < g.size(); v++)
             componente[v] = v;
+
+        //Inicializo el mas cercano de cada nodo.
+        for(ll i = 0; i < g.size(); i++)
+        {
+            double dist_mas_cerc = inf;
+
+            for(ll j = 0; j < g.size();j++)
+            {
+                if(j != i and g[i][j] < dist_mas_cerc)
+                {
+                    dist_mas_cerc = g[i][j];
+                    mas_cercano[i]= make_pair(j,dist_mas_cerc);
+                }
+            }
+        }
     }
 
     tuple<ll, ll, double> proxima_arista()
