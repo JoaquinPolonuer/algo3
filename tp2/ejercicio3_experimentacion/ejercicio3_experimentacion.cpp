@@ -5,24 +5,31 @@
 #include <iomanip>      // std::setprecision
 #include <algorithm>
 #include <limits>
+#include <fstream>
+#include <chrono>
 
 /*
  * Archivo para la experimentación:
  * Implementación:
  *                - 0 = Kruskal O(N^2), DSU cuadrático
- *                - 1 = Kruskal O(M * log(N)), union by rank
- *                - 2 = Prim O(N^2),
- *                - 3 = Prim O(N * log (N)), con path compression
+ *                - 1 = Kruskal O(M * log(N)), union by rank y path compression
+ *                - 2 = Kruskal O(M * N^2), sin union by rank y sin path compression
  */
 
-#define IMPLEMENTATION 0
+#define IMPLEMENTATION 2
 
 double inf = std::numeric_limits<double>::infinity();
 using namespace std;
 vector<tuple<int,int>> verticeACoord;
 vector<tuple<double,int,int>> E;
 vector<vector<double>> g;
-int C,N,R,W,U,V;
+vector<pair<int,int>> oficinas;
+int N,R,W,U,V;
+
+double dist(tuple<int,int> p1, tuple<int,int> p2){
+    double dist = sqrt(pow(get<0>(p1)-get<0>(p2),2)+pow(get<1>(p1)-get<1>(p2),2));
+    return dist;
+}
 
 struct DSU_n2
 {
@@ -119,7 +126,6 @@ struct DSU_n2
     vector<pair<int, double>> mas_cercano;
 };
 
-
 struct DSU_byrank{
     explicit DSU_byrank(int n){
         padre = rank = vector<int>(n+1);
@@ -151,25 +157,12 @@ struct DSU_infeciente{
         return padre[v] = find(padre[v]);
     }
     void unite(int u, int v){
-        u = find(u), v = find(v);
+        //u = find(u), v = find(v);
         if(u == v) return;
         padre[v] = padre[u];
     }
     vector<int> padre;
 };
-
-/*
- * Idea: Kruskal en O(N^2) ¿Se puede? hasta que me queden W componentes conexas (los routers)
- * Demostrar: Esto es equivalente a en lugar de N-1 aristas, elegir N-1-(W-1) = N-W aristas.
- * Complejidad: Debería ser O(N^2), para eso find y union debería ser O(1), ya que kruskal tiene un
- * ciclo que revisa todas las aristas.
- * Complejidad actual: O(M*log(N))=O(N^2*log(N)), peor que prim :(
- */
-
-double dist(tuple<int,int> p1, tuple<int,int> p2){
-    double dist = sqrt(pow(get<0>(p1)-get<0>(p2),2)+pow(get<1>(p1)-get<1>(p2),2));
-    return dist;
-}
 
 pair<double,double> kruskal_mlogn()
 {
@@ -250,92 +243,190 @@ pair<double, double> kruskal_n2()
     return make_pair(UTP, F);
 }
 
-pair<double,double> prim_n2(){
-    pair<double,double> costos = make_pair(0,0);
-    vector<bool> es_rojo(N,false); es_rojo[0] = true;
-    vector<int> rojo_mas_cercano(N,0);
-    for(int it = 1; it < N-W; it++){
-        //agregar a la arista violeta mas barata
-        int agrego = 0;
-        while(es_rojo[agrego]) agrego++;
-        for(int v = agrego+1; v < N; v++)
-            if(!es_rojo[v] and g[v][rojo_mas_cercano[v]] < g[agrego][rojo_mas_cercano[agrego]])
-                agrego = v;
+void construir_instancia_random(int n)
+{
 
-        //pintar de rojo su extremo azul
-        es_rojo[agrego] = true;
+    vector<tuple<int, int, int>> res;
+    srand(time(NULL));
+    tuple<int, int, int> numero;
 
-        //actualizar info de rojo_mas_cercano
-        for(int v = 0; v < N; v++)
-            if(!es_rojo[v] and g[v][agrego] < g[v][rojo_mas_cercano[v]]) rojo_mas_cercano[v] = agrego;
+    N = n;
+    W = rand() % (N-1) + 1;
+    R = rand() % (100000) + 1;
+    V = rand() % (10) + 1;
+    U = rand() % (V) + 1 ;
 
-        //res.push_back(make_tuple(agrego,rojo_mas_cercano[agrego],g[agrego][rojo_mas_cercano[agrego]]));
+    oficinas = vector<pair<int, int>>();
+    g = vector<vector<double>>(N, vector<double>(N));
+    verticeACoord = vector<tuple<int,int>>(N, make_tuple(-1,-1));
+    E = vector<tuple<double,int,int>>();
 
-        if(g[agrego][rojo_mas_cercano[agrego]] <= R){
-            costos.first += g[agrego][rojo_mas_cercano[agrego]];
-        }else{
-            costos.second += g[agrego][rojo_mas_cercano[agrego]];
+    for (int i = 0; i < N; i++)
+    {
+        int xi,yi;
+        xi = rand() % (20000) - 10000;
+        yi = rand() % (20000) - 10000;
+        pair<int,int> oficina = make_pair(xi, yi);
+        tuple<int,int> coord = verticeACoord[i];
+
+        for (int j = 0; j < oficinas.size(); j++)
+        {
+            double distancia = dist(oficina, oficinas[j]);
+            g[i][j] = distancia;
+            g[j][i] = distancia;
+            if(distancia <= R){
+                double precio = U * distancia;
+                E.emplace_back(precio,i,j);
+            }else{
+                double precio = V * distancia;
+                E.emplace_back(precio,i,j);
+            }
         }
+
+        // Agrego la oficina
+        oficinas.push_back(oficina);
     }
-    return costos;
+
+}
+
+vector<tuple<int, int, int>> construir_vector_iguales(int n)
+{
+
+    vector<tuple<int, int, int>> res;
+    srand(time(NULL));
+    tuple<int, int, int> numero;
+
+    int fin_act = rand() % (2 * n);
+    int inic_act = rand() % (fin_act + 1);
+
+    for (int i = 0; i < n; i++)
+    {
+        numero = make_tuple(i + 1, inic_act, fin_act);
+        res.push_back(numero);
+    }
+    return res;
+}
+
+vector<tuple<int, int, int>> construir_vector_acotado(int n)
+{
+
+    vector<tuple<int, int, int>> res;
+    srand(time(NULL));
+    tuple<int, int, int> numero;
+
+    for (int i = 0; i < n; i++)
+    {
+        int fin_act = rand() % n;
+        int inic_act = rand() % (fin_act + 1);
+        numero = make_tuple(i + 1, inic_act, fin_act);
+        res.push_back(numero);
+    }
+    return res;
+}
+
+vector<tuple<int, int, int>> construir_vector_sorted(int n)
+{
+
+    vector<tuple<int, int, int>> res;
+    srand(time(NULL));
+    tuple<int, int, int> numero;
+
+    for(int i=0; i < 2*n; i+=2){
+        int fin_act = i+1;
+        int inic_act = i;
+        numero = make_tuple(i + 1, inic_act, fin_act);
+        res.push_back(numero);
+    }
+    return res;
+}
+
+double measure()
+{
+    if(IMPLEMENTATION == 0){
+        auto start = chrono::high_resolution_clock::now();
+        auto res = kruskal_n2();
+        auto stop = chrono::high_resolution_clock::now();
+        chrono::duration<double> diff = stop - start;
+        return diff.count();
+
+    }else if(IMPLEMENTATION==1){
+        auto start = chrono::high_resolution_clock::now();
+        auto res = kruskal_mlogn();
+        auto stop = chrono::high_resolution_clock::now();
+        chrono::duration<double> diff = stop - start;
+        return diff.count();
+
+    }else if(IMPLEMENTATION==2){
+        auto start = chrono::high_resolution_clock::now();
+        auto res = kruskal_ineficiente();
+        auto stop = chrono::high_resolution_clock::now();
+        chrono::duration<double> diff = stop - start;
+        return diff.count();
+    }else{
+        return -1.0;
+    }
 }
 
 
+int main()
+{
+    int repeat = 5;
+    ofstream output_file;
 
-
-int main(){
     if(IMPLEMENTATION == 0){
         cout << "---------IMPLEMENTACION KRUSKAL N^2---------"<< endl;
+        output_file.open("runtime_random_n^2.csv");
+        // output_file.open("runtime_sorted.csv");
+        // output_file.open("runtime_acotado.csv");
+        // output_file.open("runtime_iguales.csv");
 
     }else if(IMPLEMENTATION==1){
         cout << "---------IMPLEMENTACION KRUSKAL M*log(N)---------"<< endl;
+        output_file.open("runtime_random_mlogn.csv");
+        // output_file.open("runtime_sorted.csv");
+        // output_file.open("runtime_acotado.csv");
+        // output_file.open("runtime_iguales.csv");
 
     }else if(IMPLEMENTATION==2){
-        cout << "---------IMPLEMENTACION KRUSKAL SIN UNION BY RANK---------"<< endl;
+        cout << "---------IMPLEMENTACION KRUSKAL M*N^2---------"<< endl;
+        output_file.open("runtime_random_mn^2.csv");
+        // output_file.open("runtime_sorted.csv");
+        // output_file.open("runtime_acotado.csv");
+        // output_file.open("runtime_iguales.csv");
 
     }else{
         cout << "NO HAY IMPLEMENTACION" << endl;
         return 0;
     }
-    cin >> C;
-    for(int it=1;it<=C;it++){
-        cin >> N >> R >> W >> U >> V;
-        verticeACoord = vector<tuple<int,int>>(N, make_tuple(-1,-1));
-        E = vector<tuple<double,int,int>>();
-        g = vector<vector<double>>(N,vector<double>(N));
-        for(int it2=0;it2<N;it2++){
-            int x,y;
-            cin >> x >> y;
-            verticeACoord[it2]= make_tuple(x,y);
-        }
-        for(int v=0;v<N;v++){
-            tuple<int,int> coord = verticeACoord[v];
-            for(int u=v+1;u<N;u++){
-                double distancia = dist(coord,verticeACoord[u]);
-                g[u][v] = distancia;
-                g[v][u] = distancia;
-                if(distancia <= R){
-                    double precio = U * distancia;
-                    E.emplace_back(precio,u,v);
-                }else{
-                    double precio = V * distancia;
-                    E.emplace_back(precio,u,v);
-                }
-            }
-        }
-        pair<double,double> res;
-        if(IMPLEMENTATION == 0){
-            res = kruskal_n2();
 
-        }else if(IMPLEMENTATION==1){
-            res = kruskal_mlogn();
+    /*
+     * Actualmente solo está hecho el de RANDOM
+     * Habría que pensar qué otro es interesante para testear la complejidad
+     */
 
-        }else if(IMPLEMENTATION==2){
-            res = kruskal_ineficiente();
+    output_file << "n,time\n";
 
-        }
+    /*
+     * Obs: En el enunciado 1<=N<=1000, podemos subirlo hasta 2000 para que se vea un poco mejor la comlejidad
+     */
 
-        cout << fixed << setprecision(3) << "Caso #" << it << ": " << get<0>(res) << " " << get<1>(res) << endl;
+    //int limit = 1 << 27;
+    int limit = 2000;
+    for (int n = 2; n <= limit; n += 50)
+    {
+        construir_instancia_random(n);
+        // A = construir_vector_random(n);
+        // A = construir_vector_sorted(n);
+        // A = construir_vector_acotado(n);
+        // A = construir_vector_iguales(n);
+
+        double counter = 0;
+        for (int it = 0; it < repeat; it++)
+            counter += measure();
+
+        output_file << n << "," << counter / repeat << endl;
     }
+
+    output_file.close();
     return 0;
 }
