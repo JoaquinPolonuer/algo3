@@ -101,6 +101,10 @@ struct DSU
                 menor_distancia = g[u][i];
             }
         }
+        // Una buena idea ademas seria actualizar las distancias desde todos los otros
+        // nodos hasta u y v. Esto se haria mirando las columnas u y v y haciendo el 
+        // mismo procedimiento.
+
 
         // Para todos los nodos, en el componente de u
         // actualizamos su componente mas cercana con su distancia

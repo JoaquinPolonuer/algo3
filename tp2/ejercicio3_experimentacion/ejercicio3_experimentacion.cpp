@@ -2,7 +2,7 @@
 #include <vector>
 #include <cmath>
 #include <tuple>
-#include <iomanip>      // std::setprecision
+#include <iomanip> // std::setprecision
 #include <algorithm>
 #include <limits>
 #include <fstream>
@@ -20,14 +20,15 @@
 
 double inf = std::numeric_limits<double>::infinity();
 using namespace std;
-vector<tuple<int,int>> verticeACoord;
-vector<tuple<double,int,int>> E;
+vector<tuple<int, int>> verticeACoord;
+vector<tuple<double, int, int>> E;
 vector<vector<double>> g;
-vector<pair<int,int>> oficinas;
-int N,R,W,U,V;
+vector<pair<int, int>> oficinas;
+int N, R, W, U, V;
 
-double dist(tuple<int,int> p1, tuple<int,int> p2){
-    double dist = sqrt(pow(get<0>(p1)-get<0>(p2),2)+pow(get<1>(p1)-get<1>(p2),2));
+double dist(tuple<int, int> p1, tuple<int, int> p2)
+{
+    double dist = sqrt(pow(get<0>(p1) - get<0>(p2), 2) + pow(get<1>(p1) - get<1>(p2), 2));
     return dist;
 }
 
@@ -40,21 +41,20 @@ struct DSU_n2
 
         for (int v = 0; v < g.size(); v++)
             componente[v] = v;
-        //Inicializo el mas cercano de cada nodo.
-        for(int i = 0; i < g.size(); i++)
+        // Inicializo el mas cercano de cada nodo.
+        for (int i = 0; i < g.size(); i++)
         {
             double dist_mas_cerc = inf;
 
-            for(int j = 0; j < g.size();j++)
+            for (int j = 0; j < g.size(); j++)
             {
-                if(j != i and g[i][j] < dist_mas_cerc)
+                if (j != i and g[i][j] < dist_mas_cerc)
                 {
                     dist_mas_cerc = g[i][j];
-                    mas_cercano[i]= make_pair(j,dist_mas_cerc);
+                    mas_cercano[i] = make_pair(j, dist_mas_cerc);
                 }
             }
         }
-
     }
 
     tuple<int, int, double> proxima_arista()
@@ -65,7 +65,7 @@ struct DSU_n2
 
         for (int i = 0; i < mas_cercano.size(); i++)
         {
-            //i = componente[i];
+            // i = componente[i];
             if (mas_cercano[i].second < menor_distancia)
             {
                 menor_distancia = mas_cercano[i].second;
@@ -74,7 +74,7 @@ struct DSU_n2
                 v = componente[v];
             }
         }
-        //u y v son los representantes de cada componente
+        // u y v son los representantes de cada componente
 
         return {u, v, menor_distancia};
     }
@@ -126,61 +126,81 @@ struct DSU_n2
     vector<pair<int, double>> mas_cercano;
 };
 
-struct DSU_byrank{
-    explicit DSU_byrank(int n){
-        padre = rank = vector<int>(n+1);
-        for(int v = 1; v < n+1; v++) padre[v] = v;
+struct DSU_byrank
+{
+    explicit DSU_byrank(int n)
+    {
+        padre = rank = vector<int>(n + 1);
+        for (int v = 1; v < n + 1; v++)
+            padre[v] = v;
     }
-    int find(int v){
-        if(v == padre[v]) return v;
+    int find(int v)
+    {
+        if (v == padre[v])
+            return v;
         return padre[v] = find(padre[v]);
     }
-    void unite(int u, int v){
+    void unite(int u, int v)
+    {
         u = find(u), v = find(v);
-        if(u == v) return;
-        if(rank[u] < rank[v]) swap(u,v);
+        if (u == v)
+            return;
+        if (rank[u] < rank[v])
+            swap(u, v);
         padre[v] = padre[u];
-        rank[u] = max(rank[u],rank[v]+1);
+        rank[u] = max(rank[u], rank[v] + 1);
     }
     vector<int> padre;
     vector<int> rank;
     vector<int> mas_cercano;
 };
 
-struct DSU_infeciente{
-    explicit DSU_infeciente(int n){
-        padre = vector<int>(n+1);
-        for(int v = 1; v < n+1; v++) padre[v] = v;
+struct DSU_infeciente
+{
+    explicit DSU_infeciente(int n)
+    {
+        padre = vector<int>(n + 1);
+        for (int v = 1; v < n + 1; v++)
+            padre[v] = v;
     }
-    int find(int v){
-        if(v == padre[v]) return v;
+    int find(int v)
+    {
+        if (v == padre[v])
+            return v;
         return padre[v] = find(padre[v]);
     }
-    void unite(int u, int v){
-        //u = find(u), v = find(v);
-        if(u == v) return;
+    void unite(int u, int v)
+    {
+        // u = find(u), v = find(v);
+        if (u == v)
+            return;
         padre[v] = padre[u];
     }
     vector<int> padre;
 };
 
-pair<double,double> kruskal_mlogn()
+pair<double, double> kruskal_mlogn()
 {
-    sort(E.begin(),E.end());
-    pair<double,double> res = make_pair(0,0);
+    sort(E.begin(), E.end());
+    pair<double, double> res = make_pair(0, 0);
     int aristas = 0;
     DSU_byrank dsu(N);
-    for(auto arista : E){
-        //si (u,v) es arista segura
+    for (auto arista : E)
+    {
+        // si (u,v) es arista segura
         double c = get<0>(arista);
         int u = get<1>(arista);
         int v = get<2>(arista);
-        if(dsu.find(u) != dsu.find(v) and aristas<N-W){
-            dsu.unite(u,v);
+        if (dsu.find(u) != dsu.find(v) and aristas < N - W)
+        {
+            dsu.unite(u, v);
             aristas++;
-            if(dist(verticeACoord[u],verticeACoord[v])<=R){
+            if (dist(verticeACoord[u], verticeACoord[v]) <= R)
+            {
                 get<0>(res) += c;
-            }else{
+            }
+            else
+            {
                 get<1>(res) += c;
             }
         }
@@ -188,23 +208,28 @@ pair<double,double> kruskal_mlogn()
     return res;
 }
 
-pair<double,double> kruskal_ineficiente()
+pair<double, double> kruskal_ineficiente()
 {
-    sort(E.begin(),E.end());
-    pair<double,double> res = make_pair(0,0);
+    sort(E.begin(), E.end());
+    pair<double, double> res = make_pair(0, 0);
     int aristas = 0;
     DSU_infeciente dsu(N);
-    for(auto arista : E){
-        //si (u,v) es arista segura
+    for (auto arista : E)
+    {
+        // si (u,v) es arista segura
         double c = get<0>(arista);
         int u = get<1>(arista);
         int v = get<2>(arista);
-        if(dsu.find(u) != dsu.find(v) and aristas<N-W){
-            dsu.unite(u,v);
+        if (dsu.find(u) != dsu.find(v) and aristas < N - W)
+        {
+            dsu.unite(u, v);
             aristas++;
-            if(dist(verticeACoord[u],verticeACoord[v])<=R){
+            if (dist(verticeACoord[u], verticeACoord[v]) <= R)
+            {
                 get<0>(res) += c;
-            }else{
+            }
+            else
+            {
                 get<1>(res) += c;
             }
         }
@@ -245,186 +270,113 @@ pair<double, double> kruskal_n2()
 
 void construir_instancia_random(int n)
 {
-
     vector<tuple<int, int, int>> res;
     srand(time(NULL));
     tuple<int, int, int> numero;
 
     N = n;
-    W = rand() % (N-1) + 1;
+    W = rand() % (N - 1) + 1;
     R = rand() % (100000) + 1;
     V = rand() % (10) + 1;
-    U = rand() % (V) + 1 ;
+    U = rand() % (V) + 1;
 
     oficinas = vector<pair<int, int>>();
     g = vector<vector<double>>(N, vector<double>(N));
-    verticeACoord = vector<tuple<int,int>>(N, make_tuple(-1,-1));
-    E = vector<tuple<double,int,int>>();
+    verticeACoord = vector<tuple<int, int>>(N, make_tuple(-1, -1));
+    E = vector<tuple<double, int, int>>();
 
     for (int i = 0; i < N; i++)
     {
-        int xi,yi;
+        int xi, yi;
         xi = rand() % (20000) - 10000;
         yi = rand() % (20000) - 10000;
-        pair<int,int> oficina = make_pair(xi, yi);
-        tuple<int,int> coord = verticeACoord[i];
+        pair<int, int> oficina = make_pair(xi, yi);
+        tuple<int, int> coord = verticeACoord[i];
 
         for (int j = 0; j < oficinas.size(); j++)
         {
             double distancia = dist(oficina, oficinas[j]);
             g[i][j] = distancia;
             g[j][i] = distancia;
-            if(distancia <= R){
+            if (distancia <= R)
+            {
                 double precio = U * distancia;
-                E.emplace_back(precio,i,j);
-            }else{
+                E.emplace_back(precio, i, j);
+            }
+            else
+            {
                 double precio = V * distancia;
-                E.emplace_back(precio,i,j);
+                E.emplace_back(precio, i, j);
             }
         }
 
         // Agrego la oficina
         oficinas.push_back(oficina);
     }
-
 }
 
-vector<tuple<int, int, int>> construir_vector_iguales(int n)
+tuple<double, double, double> measure()
 {
+    auto start = chrono::high_resolution_clock::now();
+    auto res = kruskal_n2();
+    auto stop = chrono::high_resolution_clock::now();
+    double cuadrado = (stop - start).count();
 
-    vector<tuple<int, int, int>> res;
-    srand(time(NULL));
-    tuple<int, int, int> numero;
+    start = chrono::high_resolution_clock::now();
+    res = kruskal_mlogn();
+    stop = chrono::high_resolution_clock::now();
+    double mlogn = (stop - start).count();
 
-    int fin_act = rand() % (2 * n);
-    int inic_act = rand() % (fin_act + 1);
+    start = chrono::high_resolution_clock::now();
+    res = kruskal_ineficiente();
+    stop = chrono::high_resolution_clock::now();
+    double mncuadrado = (stop - start).count();
 
-    for (int i = 0; i < n; i++)
-    {
-        numero = make_tuple(i + 1, inic_act, fin_act);
-        res.push_back(numero);
-    }
-    return res;
+    return {cuadrado, mlogn, mncuadrado};
 }
-
-vector<tuple<int, int, int>> construir_vector_acotado(int n)
-{
-
-    vector<tuple<int, int, int>> res;
-    srand(time(NULL));
-    tuple<int, int, int> numero;
-
-    for (int i = 0; i < n; i++)
-    {
-        int fin_act = rand() % n;
-        int inic_act = rand() % (fin_act + 1);
-        numero = make_tuple(i + 1, inic_act, fin_act);
-        res.push_back(numero);
-    }
-    return res;
-}
-
-vector<tuple<int, int, int>> construir_vector_sorted(int n)
-{
-
-    vector<tuple<int, int, int>> res;
-    srand(time(NULL));
-    tuple<int, int, int> numero;
-
-    for(int i=0; i < 2*n; i+=2){
-        int fin_act = i+1;
-        int inic_act = i;
-        numero = make_tuple(i + 1, inic_act, fin_act);
-        res.push_back(numero);
-    }
-    return res;
-}
-
-double measure()
-{
-    if(IMPLEMENTATION == 0){
-        auto start = chrono::high_resolution_clock::now();
-        auto res = kruskal_n2();
-        auto stop = chrono::high_resolution_clock::now();
-        chrono::duration<double> diff = stop - start;
-        return diff.count();
-
-    }else if(IMPLEMENTATION==1){
-        auto start = chrono::high_resolution_clock::now();
-        auto res = kruskal_mlogn();
-        auto stop = chrono::high_resolution_clock::now();
-        chrono::duration<double> diff = stop - start;
-        return diff.count();
-
-    }else if(IMPLEMENTATION==2){
-        auto start = chrono::high_resolution_clock::now();
-        auto res = kruskal_ineficiente();
-        auto stop = chrono::high_resolution_clock::now();
-        chrono::duration<double> diff = stop - start;
-        return diff.count();
-    }else{
-        return -1.0;
-    }
-}
-
 
 int main()
 {
-    int repeat = 5;
+    int repeat = 20;
     ofstream output_file;
-
-    if(IMPLEMENTATION == 0){
-        cout << "---------IMPLEMENTACION KRUSKAL N^2---------"<< endl;
-        output_file.open("runtime_random_n^2.csv");
-        // output_file.open("runtime_sorted.csv");
-        // output_file.open("runtime_acotado.csv");
-        // output_file.open("runtime_iguales.csv");
-
-    }else if(IMPLEMENTATION==1){
-        cout << "---------IMPLEMENTACION KRUSKAL M*log(N)---------"<< endl;
-        output_file.open("runtime_random_mlogn.csv");
-        // output_file.open("runtime_sorted.csv");
-        // output_file.open("runtime_acotado.csv");
-        // output_file.open("runtime_iguales.csv");
-
-    }else if(IMPLEMENTATION==2){
-        cout << "---------IMPLEMENTACION KRUSKAL M*N^2---------"<< endl;
-        output_file.open("runtime_random_mn^2.csv");
-        // output_file.open("runtime_sorted.csv");
-        // output_file.open("runtime_acotado.csv");
-        // output_file.open("runtime_iguales.csv");
-
-    }else{
-        cout << "NO HAY IMPLEMENTACION" << endl;
-        return 0;
-    }
 
     /*
      * Actualmente solo está hecho el de RANDOM
      * Habría que pensar qué otro es interesante para testear la complejidad
      */
 
-    output_file << "n,time\n";
+    output_file.open("runtime_random.csv");
+    output_file << "n,n^2,mlogn,mn^2\n";
 
     /*
      * Obs: En el enunciado 1<=N<=1000, podemos subirlo hasta 2000 para que se vea un poco mejor la comlejidad
      */
 
-    //int limit = 1 << 27;
-    int limit = 2000;
+    int limit = 1000;
     for (int n = 2; n <= limit; n += 50)
     {
         construir_instancia_random(n);
-        // A = construir_vector_random(n);
-        // A = construir_vector_sorted(n);
-        // A = construir_vector_acotado(n);
-        // A = construir_vector_iguales(n);
 
         double counter = 0;
-        for (int it = 0; it < repeat; it++)
-            counter += measure();
+        double cuadrado_total = 0;
+        double nlogm_total = 0;
+        double mncuadrado = 0;
 
-        output_file << n << "," << counter / repeat << endl;
+        double cuadrado, nlogm, nlogmcuadrado;
+        for (int it = 0; it < repeat; it++)
+        {
+            tie(cuadrado, nlogm, nlogmcuadrado) = measure();
+
+            cuadrado_total += cuadrado;
+            nlogm_total += nlogm;
+            mncuadrado += nlogmcuadrado;
+        }
+
+        output_file << n    << "," << cuadrado_total / repeat 
+                            << "," << nlogm_total / repeat
+                            << "," << mncuadrado / repeat << endl;
+
+        cout << n << "/" << limit << endl;
     }
 
     output_file.close();
