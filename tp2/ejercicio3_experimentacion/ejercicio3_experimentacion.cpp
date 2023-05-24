@@ -315,18 +315,23 @@ void construir_instancia_random(int n)
     }
 }
 
-tuple<double, double, double> measure()
+tuple<double, double, double> measure(int n)
 {
+    construir_instancia_random(n);
+
     auto start = chrono::high_resolution_clock::now();
     auto res = kruskal_n2();
     auto stop = chrono::high_resolution_clock::now();
     double cuadrado = (stop - start).count();
 
+    construir_instancia_random(n);
     start = chrono::high_resolution_clock::now();
     res = kruskal_mlogn();
     stop = chrono::high_resolution_clock::now();
     double mlogn = (stop - start).count();
 
+
+    construir_instancia_random(n);
     start = chrono::high_resolution_clock::now();
     res = kruskal_ineficiente();
     stop = chrono::high_resolution_clock::now();
@@ -355,8 +360,6 @@ int main()
     int limit = 1000;
     for (int n = 2; n <= limit; n += 50)
     {
-        construir_instancia_random(n);
-
         double counter = 0;
         double cuadrado_total = 0;
         double nlogm_total = 0;
@@ -365,7 +368,7 @@ int main()
         double cuadrado, nlogm, nlogmcuadrado;
         for (int it = 0; it < repeat; it++)
         {
-            tie(cuadrado, nlogm, nlogmcuadrado) = measure();
+            tie(cuadrado, nlogm, nlogmcuadrado) = measure(n);
 
             cuadrado_total += cuadrado;
             nlogm_total += nlogm;
