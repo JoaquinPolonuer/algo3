@@ -126,9 +126,9 @@ struct DSU_n2
     vector<pair<int, double>> mas_cercano;
 };
 
-struct DSU_byrank
+struct DSU_path_compression
 {
-    explicit DSU_byrank(int n)
+    explicit DSU_path_compression(int n)
     {
         padre = rank = vector<int>(n + 1);
         for (int v = 1; v < n + 1; v++)
@@ -152,12 +152,11 @@ struct DSU_byrank
     }
     vector<int> padre;
     vector<int> rank;
-    vector<int> mas_cercano;
 };
 
-struct DSU_infeciente
+struct DSU_sin_path_compression
 {
-    explicit DSU_infeciente(int n)
+    explicit DSU_sin_path_compression(int n)
     {
         padre = vector<int>(n + 1);
         for (int v = 1; v < n + 1; v++)
@@ -165,13 +164,17 @@ struct DSU_infeciente
     }
     int find(int v)
     {
+        int a = 0;
+        // for (int i = 0; i < N; i++)
+        // {
+        //     a += 1;
+        // }
         if (v == padre[v])
             return v;
-        return padre[v] = find(padre[v]);
+        return find(padre[v]);
     }
     void unite(int u, int v)
     {
-        // u = find(u), v = find(v);
         if (u == v)
             return;
         padre[v] = padre[u];
@@ -179,12 +182,12 @@ struct DSU_infeciente
     vector<int> padre;
 };
 
-pair<double, double> kruskal_mlogn()
+pair<double, double> kruskal_PC()
 {
     sort(E.begin(), E.end());
     pair<double, double> res = make_pair(0, 0);
     int aristas = 0;
-    DSU_byrank dsu(N);
+    DSU_path_compression dsu(N);
     for (auto arista : E)
     {
         // si (u,v) es arista segura
@@ -208,12 +211,12 @@ pair<double, double> kruskal_mlogn()
     return res;
 }
 
-pair<double, double> kruskal_ineficiente()
+pair<double, double> kruskal_SPC()
 {
     sort(E.begin(), E.end());
     pair<double, double> res = make_pair(0, 0);
     int aristas = 0;
-    DSU_infeciente dsu(N);
+    DSU_sin_path_compression dsu(N);
     for (auto arista : E)
     {
         // si (u,v) es arista segura
@@ -326,23 +329,21 @@ tuple<double, double, double> measure(int n)
 
     construir_instancia_random(n);
     start = chrono::high_resolution_clock::now();
-    res = kruskal_mlogn();
+    res = kruskal_SPC();
     stop = chrono::high_resolution_clock::now();
-    double mlogn = (stop - start).count();
-
+    double SPC = (stop - start).count();
 
     construir_instancia_random(n);
     start = chrono::high_resolution_clock::now();
-    res = kruskal_ineficiente();
+    res = kruskal_PC();
     stop = chrono::high_resolution_clock::now();
-    double mncuadrado = (stop - start).count();
+    double PC = (stop - start).count();
 
-    return {cuadrado, mlogn, mncuadrado};
+    return {cuadrado, PC, SPC};
 }
 
 int main()
 {
-    int repeat = 20;
     ofstream output_file;
 
     /*
@@ -351,33 +352,35 @@ int main()
      */
 
     output_file.open("runtime_random.csv");
-    output_file << "n,n^2,mlogn,mn^2\n";
+    output_file << "n,n^2,PC,SPC\n";
 
     /*
      * Obs: En el enunciado 1<=N<=1000, podemos subirlo hasta 2000 para que se vea un poco mejor la comlejidad
      */
 
-    int limit = 1000;
-    for (int n = 2; n <= limit; n += 50)
+    int repeat = 20;
+    int limit = 2000;
+    for (int n = 2; n <= limit; n += 100)
     {
         double counter = 0;
         double cuadrado_total = 0;
-        double nlogm_total = 0;
-        double mncuadrado = 0;
+        double PC_total = 0;
+        double SPC_total = 0;
 
-        double cuadrado, nlogm, nlogmcuadrado;
+        double cuadrado, PC, SPC;
         for (int it = 0; it < repeat; it++)
         {
-            tie(cuadrado, nlogm, nlogmcuadrado) = measure(n);
+            tie(cuadrado, PC, SPC) = measure(n);
 
             cuadrado_total += cuadrado;
-            nlogm_total += nlogm;
-            mncuadrado += nlogmcuadrado;
+            PC_total += PC;
+            SPC_total += SPC;
         }
 
-        output_file << n    << "," << cuadrado_total / repeat 
-                            << "," << nlogm_total / repeat
-                            << "," << mncuadrado / repeat << endl;
+        output_file << n
+                    << "," << cuadrado_total / repeat
+                    << "," << PC_total / repeat
+                    << "," << SPC_total / repeat << endl;
 
         cout << n << "/" << limit << endl;
     }
