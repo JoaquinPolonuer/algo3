@@ -10,13 +10,12 @@
 
 /*
  * Archivo para la experimentación:
- * Implementación:
- *                - 0 = Kruskal O(N^2), DSU cuadrático
- *                - 1 = Kruskal O(M * log(N)), union by rank y path compression
- *                - 2 = Kruskal O(M * N^2), sin union by rank y sin path compression
+ * Implementaciones:
+ *      - Kruskal O(N^2), DSU cuadrático
+ *      - Kruskal ~ O(M * log(N)), union by rank y path compression
+ *      - Kruskal O(M * N), sin union by rank y sin path compression
  */
 
-#define IMPLEMENTATION 2
 
 double inf = std::numeric_limits<double>::infinity();
 using namespace std;
@@ -164,11 +163,6 @@ struct DSU_sin_path_compression
     }
     int find(int v)
     {
-        int a = 0;
-        // for (int i = 0; i < N; i++)
-        // {
-        //     a += 1;
-        // }
         if (v == padre[v])
             return v;
         return find(padre[v]);
