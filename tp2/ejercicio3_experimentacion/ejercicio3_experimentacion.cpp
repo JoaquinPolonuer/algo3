@@ -13,7 +13,7 @@
  * Implementaciones:
  *      - Kruskal O(N^2), DSU cuadrático
  *      - Kruskal ~ O(M * log(N)), union by rank y path compression
- *      - Kruskal O(M * N), sin union by rank y sin path compression
+ *      - Kruskal ~ O(M * log(N)), sin path compression (solo union by rank)
  */
 
 
@@ -157,7 +157,7 @@ struct DSU_sin_path_compression
 {
     explicit DSU_sin_path_compression(int n)
     {
-        padre = vector<int>(n + 1);
+        padre = rank = vector<int>(n + 1);
         for (int v = 1; v < n + 1; v++)
             padre[v] = v;
     }
@@ -169,11 +169,16 @@ struct DSU_sin_path_compression
     }
     void unite(int u, int v)
     {
+        u = find(u), v = find(v);
         if (u == v)
             return;
+        if (rank[u] < rank[v])
+            swap(u, v);
         padre[v] = padre[u];
+        rank[u] = max(rank[u], rank[v] + 1);
     }
     vector<int> padre;
+    vector<int> rank;
 };
 
 pair<double, double> kruskal_PC()
