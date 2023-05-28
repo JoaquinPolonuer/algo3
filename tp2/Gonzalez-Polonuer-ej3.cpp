@@ -56,7 +56,6 @@ struct DSU
 
         for (int i = 0; i < mas_cercano.size(); i++)
         {
-            //i = componente[i];
             if (mas_cercano[i].second < menor_distancia)
             {
                 menor_distancia = mas_cercano[i].second;
