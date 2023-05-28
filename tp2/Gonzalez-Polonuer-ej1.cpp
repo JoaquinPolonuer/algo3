@@ -43,10 +43,6 @@ void dfs(ll v)
         }
         else if (u != padre[v] && estado[u] == GRIS)
         {
-            if (v == 1)
-            {
-                cout << "a";
-            }
             backConExtremoInferiorEn[v]++;
             backConExtremoSuperiorEn[u]++;
         }
