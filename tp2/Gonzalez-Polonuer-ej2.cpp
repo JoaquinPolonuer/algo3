@@ -48,7 +48,10 @@ int main()
 
     // Voy a hacer dfs por todo el grafo
     // De esta forma, voy a ir armando mi lista de finish
-    // para topological sort
+    // para "topological sort". 
+    // (En realidad se permiten ciclos en el grafo, pero 
+    // definimos el orden como si la ultima arista del ciclo 
+    // no existiera)
     estado = vector<ll>(N + 1, BLANCO);
     finish = vector<ll>();
     for (ll i = 1; i < estado.size(); i++)
@@ -60,7 +63,7 @@ int main()
     }
 
     // Ahora voy a querer volver a recorrer mi grafo pero en
-    // orden topologico, a ver cuales voy tirando
+    // el orden definido previamente, a ver cuales voy tirando
     vector<ll> cuales;
     estado = vector<ll>(N + 1, BLANCO);
     for (ll i = finish.size() - 1; i >= 0; i--)
@@ -73,7 +76,7 @@ int main()
         }
     }
 
-    // Imprimo cuales al reves porque topological sort me devuelve
+    // Imprimo cuales al reves porque el orden generado me devuelve
     // antes los vertices mas grandes
     cout << cuales.size() << endl;
     for (ll i = cuales.size() - 1; i >= 0; i--)

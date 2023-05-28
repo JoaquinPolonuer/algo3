@@ -59,10 +59,7 @@ ll cubren(ll v)
     res += backConExtremoInferiorEn[v];
     res -= backConExtremoSuperiorEn[v];
     for (ll hijo : treeEdges[v])
-        if (hijo != padre[v]) // es necesario?
-        {
-            res += cubren(hijo);
-        }
+        res += cubren(hijo);
     memo[v] = res;
     return res;
 }
