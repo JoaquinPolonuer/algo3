@@ -6,6 +6,7 @@
 #include <queue>
 
 using namespace std;
+
 using ll = long long;
 const ll inf = 1e18;
 
@@ -61,7 +62,7 @@ int main()
     for (int caso = 0; caso < C; caso++)
     {
         // recibo el input
-        // para no tener problema con el indexado, voy a 
+        // para no tener problema con el indexado, voy a
         // restarle 1 a todos los vertices, de manera que
         // vayan de 0 a n-1
         cin >> N >> M >> K >> s >> t;
@@ -75,7 +76,8 @@ int main()
         for (int i = 0; i < M; i++)
         {
             cin >> u >> v >> c;
-            u--; v--;
+            u--;
+            v--;
             g_aristas[u].push_back({v, c});
             gt_aristas[v].push_back({u, c});
         }
@@ -84,7 +86,8 @@ int main()
         for (int i = 0; i < K; i++)
         {
             cin >> u >> v >> c;
-            u--; v--;
+            u--;
+            v--;
             aristas_extra.push_back({u, v, c});
         }
 
@@ -93,7 +96,7 @@ int main()
         vector<ll> d_d_s = dijkstra(g_aristas, s);
         vector<ll> d_a_t = dijkstra(gt_aristas, t);
 
-        // el camino minimo antes de hacer cualquier 
+        // el camino minimo antes de hacer cualquier
         // cambio es el que encuentra dijkstra
         ll cm = d_d_s[t];
         for (auto e : aristas_extra)
@@ -102,12 +105,24 @@ int main()
 
             // si la distancia a t disminuye al usar mi nueva
             // arista e, cambio la longitud del camino minimo
-            if(d_d_s[u] + c + d_a_t[v] < cm){
+            if (d_d_s[u] + c + d_a_t[v] < cm)
+            {
                 cm = d_d_s[u] + c + d_a_t[v];
             }
-        }
 
-        cout << cm; 
+            if (d_d_s[v] + c + d_a_t[u] < cm)
+            {
+                cm = d_d_s[v] + c + d_a_t[u];
+            }
+        }
+        if (cm != inf)
+        {
+            cout << cm << endl;
+        }
+        else
+        {
+            cout << -1 << endl;
+        }
     }
 
     return 0;
