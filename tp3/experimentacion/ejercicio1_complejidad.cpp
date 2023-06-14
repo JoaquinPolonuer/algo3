@@ -7,7 +7,6 @@
 #include <chrono>
 #include <fstream>
 
-
 using namespace std;
 
 using ll = long long;
@@ -86,7 +85,7 @@ vector<ll> dijkstra_cuadratico(vector<vector<pair<ll, ll>>> &g, ll s)
 
             if (d[u] + c < d[v])
             {
-                d[v] = d[u] + c;                
+                d[v] = d[u] + c;
             }
         }
     }
@@ -94,50 +93,47 @@ vector<ll> dijkstra_cuadratico(vector<vector<pair<ll, ll>>> &g, ll s)
     return d;
 }
 
-pair<double,double> medir_instancia_denso(int n)
+pair<double, double> medir_instancia_denso(int n)
 {
     srand(time(NULL));
 
     N = n;
-    M = n*(n-1);
+    M = n * (n - 1);
     K = rand() % (300);
 
     g_aristas = vector<vector<pair<ll, ll>>>(N);
     gt_aristas = vector<vector<pair<ll, ll>>>(N);
     aristas_extra = vector<tuple<ll, ll, ll>>();
 
-    for(int i = 0;i < N; i++){
-        for(int j = i+1;j < N;j++){
+    for (int i = 0; i < N; i++)
+    {
+        for (int j = i + 1; j < N; j++)
+        {
             int wi = rand() % (1000);
             g_aristas[i].push_back({j, wi});
             gt_aristas[j].push_back({i, wi});
         }
     }
     s = 0;
-    t = N-1;
+    t = N - 1;
 
     auto start = chrono::high_resolution_clock::now();
     dijkstra_cuadratico(g_aristas, s);
-    dijkstra_cuadratico(gt_aristas,t);
+    dijkstra_cuadratico(gt_aristas, t);
     auto stop = chrono::high_resolution_clock::now();
     chrono::duration<double> denso_diff_cuadratico = stop - start;
 
-
     start = chrono::high_resolution_clock::now();
     dijkstra_logn(g_aristas, s);
-    dijkstra_logn(gt_aristas,t);
+    dijkstra_logn(gt_aristas, t);
     stop = chrono::high_resolution_clock::now();
 
     chrono::duration<double> denso_diff_logn = stop - start;
 
-
     return make_pair(denso_diff_cuadratico.count(), denso_diff_logn.count());
-    
 }
 
-
-
-pair<double,double> medir_instancia_ralo(int n)
+pair<double, double> medir_instancia_ralo(int n)
 {
     srand(time(NULL));
 
@@ -149,64 +145,68 @@ pair<double,double> medir_instancia_ralo(int n)
     gt_aristas = vector<vector<pair<ll, ll>>>(N);
     aristas_extra = vector<tuple<ll, ll, ll>>();
 
-    for(int i = 0;i < M; i++){
+    for (int i = 0; i < M; i++)
+    {
         int xi, yi, wi;
         xi = rand() % (N);
         yi = rand() % (N);
         wi = rand() % (1000);
-        //agregar al grafo
+        // agregar al grafo
         g_aristas[xi].push_back({yi, wi});
         gt_aristas[yi].push_back({xi, wi});
-
     }
     s = 0;
-    t = N-1;
+    t = N - 1;
 
     auto start = chrono::high_resolution_clock::now();
     dijkstra_cuadratico(g_aristas, s);
-    dijkstra_cuadratico(gt_aristas,t);
+    dijkstra_cuadratico(gt_aristas, t);
     auto stop = chrono::high_resolution_clock::now();
     chrono::duration<double> ralo_diff_cuadratico = stop - start;
 
-
     start = chrono::high_resolution_clock::now();
     dijkstra_logn(g_aristas, s);
-    dijkstra_logn(gt_aristas,t);
+    dijkstra_logn(gt_aristas, t);
     stop = chrono::high_resolution_clock::now();
 
     chrono::duration<double> ralo_diff_logn = stop - start;
 
-
     return make_pair(ralo_diff_cuadratico.count(), ralo_diff_logn.count());
-    
 }
 
 int main()
 {
     int repeat = 5;
     ofstream output_file;
+    
     output_file.open("runtime.csv");
     output_file << "n,denso_time_logn,ralo_time_logn,denso_time_cuadratico,ralo_time_cuadratico\n";
 
     // Itero por la cantidad de casos de prueba
-    for (int n = 2; n < 10000; n+=500)
+    for (int n = 2; n < 10000; n += 500)
     {
         double ralo_cuadratico = 0;
         double ralo_logn = 0;
         double denso_cuadratico = 0;
         double denso_logn = 0;
-        for(int it=0;it<repeat;it++){       
+
+        for (int it = 0; it < repeat; it++)
+        {
             auto medicion_ralo = medir_instancia_ralo(n);
             auto medicion_denso = medir_instancia_denso(n);
+
             ralo_cuadratico += medicion_ralo.first;
             ralo_logn += medicion_ralo.second;
+            
             denso_cuadratico += medicion_denso.first;
             denso_logn += medicion_denso.second;
         }
+
         ralo_cuadratico /= repeat;
         ralo_logn /= repeat;
         denso_cuadratico /= repeat;
         denso_logn /= repeat;
+        
         output_file << n << "," << denso_logn << "," << ralo_logn << "," << denso_cuadratico << "," << ralo_cuadratico << "\n";
         cout << n << endl;
     }
