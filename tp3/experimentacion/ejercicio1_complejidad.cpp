@@ -30,6 +30,10 @@ vector<ll> dijkstra_logn(vector<vector<pair<ll, ll>>> &g, ll s)
     d[s] = 0;
     q.push({0, s});
 
+    for(int i = 0; i < N; i++){
+        q.push({inf, i}); //Esto nos asegura que va a visitar todos los nodos
+    }
+
     while (!q.empty())
     {
         ll u = q.front().second;
