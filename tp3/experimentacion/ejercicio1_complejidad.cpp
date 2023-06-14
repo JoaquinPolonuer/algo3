@@ -145,16 +145,24 @@ pair<double, double> medir_instancia_ralo(int n)
     gt_aristas = vector<vector<pair<ll, ll>>>(N);
     aristas_extra = vector<tuple<ll, ll, ll>>();
 
-    for (int i = 0; i < M; i++)
+    for (int i = 0; i < N; i++)
     {
-        int xi, yi, wi;
-        xi = rand() % (N);
-        yi = rand() % (N);
-        wi = rand() % (1000);
-        // agregar al grafo
-        g_aristas[xi].push_back({yi, wi});
-        gt_aristas[yi].push_back({xi, wi});
+        for(int it = 0; it < 3; it++){
+            int xi, wi;
+            xi = rand() % (N);
+            wi = rand() % (1000);
+            // agregar al grafo
+            g_aristas[i].push_back({xi, wi});
+            gt_aristas[xi].push_back({i, wi});
+        }
     }
+    //Agrego camino de S a T para que siempre haya camino 3
+    for(int arista = 0; arista < N; arista++){
+        int peso = rand() % (1000);
+        g_aristas[arista].push_back({arista+1, peso});
+        gt_aristas[arista+1].push_back({arista, peso});
+    }
+
     s = 0;
     t = N - 1;
 
