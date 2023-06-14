@@ -65,16 +65,10 @@ ll flujo_maximo(ll s, ll t) {
 
 int main()
 {
-    ios_base::sync_with_stdio(false);
-    cin.tie(NULL);
-
-    N = inf;
-    M = inf;
-
     // S = 0, T = N+1
     while (true)
     {
-        cin >> N >> M;
+        scanf("%lld %lld", &N, &M);
 
         if (N == 0 && M == 0)
         {
@@ -86,7 +80,7 @@ int main()
 
         for (ll i = 1; i <= N; i++)
         {
-            cin >> voto;
+            scanf("%lld",&voto);
 
             ll conexion;
             if (voto == 0)
@@ -107,7 +101,7 @@ int main()
 
         for (ll k = 0; k < M; k++)
         {
-            cin >> i >> j;
+            scanf("%lld %lld", &i, &j);
 
             vecinos[i].push_back(j);
             vecinos[j].push_back(i);
