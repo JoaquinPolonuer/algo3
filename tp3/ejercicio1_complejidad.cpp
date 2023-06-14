@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <queue>
 #include <chrono>
+#include <fstream>
+
 
 using namespace std;
 
@@ -19,7 +21,7 @@ vector<vector<pair<ll, ll>>> g_aristas;
 vector<vector<pair<ll, ll>>> gt_aristas;
 vector<tuple<ll, ll, ll>> aristas_extra;
 
-vector<ll> dijkstra_ralo(vector<vector<pair<ll, ll>>> &g, ll s)
+vector<ll> dijkstra_logn(vector<vector<pair<ll, ll>>> &g, ll s)
 {
     vector<ll> d = vector<ll>(g.size(), inf);
     vector<bool> processed = vector<bool>(g.size(), false);
@@ -54,7 +56,7 @@ vector<ll> dijkstra_ralo(vector<vector<pair<ll, ll>>> &g, ll s)
     return d;
 }
 
-vector<ll> dijkstra_denso(vector<vector<pair<ll, ll>>> &g, ll s)
+vector<ll> dijkstra_cuadratico(vector<vector<pair<ll, ll>>> &g, ll s)
 {
     vector<ll> d = vector<ll>(N, inf);
     vector<bool> processed = vector<bool>(N, false);
@@ -92,7 +94,50 @@ vector<ll> dijkstra_denso(vector<vector<pair<ll, ll>>> &g, ll s)
     return d;
 }
 
-void construir_instancia_ralo(int n)
+pair<double,double> medir_instancia_denso(int n)
+{
+    srand(time(NULL));
+
+    N = n;
+    M = n*(n-1);
+    K = rand() % (300);
+
+    g_aristas = vector<vector<pair<ll, ll>>>(N);
+    gt_aristas = vector<vector<pair<ll, ll>>>(N);
+    aristas_extra = vector<tuple<ll, ll, ll>>();
+
+    for(int i = 0;i < N; i++){
+        for(int j = i+1;j < N;j++){
+            int wi = rand() % (1000);
+            g_aristas[i].push_back({j, wi});
+            gt_aristas[j].push_back({i, wi});
+        }
+    }
+    s = 0;
+    t = N-1;
+
+    auto start = chrono::high_resolution_clock::now();
+    dijkstra_cuadratico(g_aristas, s);
+    dijkstra_cuadratico(gt_aristas,t);
+    auto stop = chrono::high_resolution_clock::now();
+    chrono::duration<double> denso_diff_cuadratico = stop - start;
+
+
+    start = chrono::high_resolution_clock::now();
+    dijkstra_logn(g_aristas, s);
+    dijkstra_logn(gt_aristas,t);
+    stop = chrono::high_resolution_clock::now();
+
+    chrono::duration<double> denso_diff_logn = stop - start;
+
+
+    return make_pair(denso_diff_cuadratico.count(), denso_diff_logn.count());
+    
+}
+
+
+
+pair<double,double> medir_instancia_ralo(int n)
 {
     srand(time(NULL));
 
@@ -100,68 +145,70 @@ void construir_instancia_ralo(int n)
     M = n;
     K = rand() % (300);
 
+    g_aristas = vector<vector<pair<ll, ll>>>(N);
+    gt_aristas = vector<vector<pair<ll, ll>>>(N);
+    aristas_extra = vector<tuple<ll, ll, ll>>();
+
     for(int i = 0;i < M; i++){
         int xi, yi, wi;
         xi = rand() % (N);
         yi = rand() % (N);
         wi = rand() % (1000);
         //agregar al grafo
+        g_aristas[xi].push_back({yi, wi});
+        gt_aristas[yi].push_back({xi, wi});
 
     }
+    s = 0;
+    t = N-1;
+
+    auto start = chrono::high_resolution_clock::now();
+    dijkstra_cuadratico(g_aristas, s);
+    dijkstra_cuadratico(gt_aristas,t);
+    auto stop = chrono::high_resolution_clock::now();
+    chrono::duration<double> ralo_diff_cuadratico = stop - start;
+
+
+    start = chrono::high_resolution_clock::now();
+    dijkstra_logn(g_aristas, s);
+    dijkstra_logn(gt_aristas,t);
+    stop = chrono::high_resolution_clock::now();
+
+    chrono::duration<double> ralo_diff_logn = stop - start;
+
+
+    return make_pair(ralo_diff_cuadratico.count(), ralo_diff_logn.count());
     
 }
 
 int main()
 {
-
-    cin >> C;
+    int repeat = 5;
+    ofstream output_file;
+    output_file.open("runtime.csv");
+    output_file << "n,denso_time_logn,ralo_time_logn,denso_time_cuadratico,ralo_time_cuadratico\n";
 
     // Itero por la cantidad de casos de prueba
-    for (int caso = 0; caso < C; caso++)
+    for (int n = 2; n < 10000; n+=500)
     {
-        // recibo el input
-        // para no tener problema con el indexado, voy a
-        // restarle 1 a todos los vertices, de manera que
-        // vayan de 0 a n-1
-        cin >> N >> M >> K >> s >> t;
-        s--, t--;
-
-        g_aristas = vector<vector<pair<ll, ll>>>(N);
-        gt_aristas = vector<vector<pair<ll, ll>>>(N);
-        aristas_extra = vector<tuple<ll, ll, ll>>();
-
-        // para cada nodo u calculo
-        // d(s, u) y d(u, t)
-        vector<ll> d_d_s = dijkstra(g_aristas, s);
-        vector<ll> d_a_t = dijkstra(gt_aristas, t);
-
-        // el camino minimo antes de hacer cualquier
-        // cambio es el que encuentra dijkstra
-        ll cm = d_d_s[t];
-        for (auto e : aristas_extra)
-        {
-            tie(u, v, c) = e;
-
-            // si la distancia a t disminuye al usar mi nueva
-            // arista e, cambio la longitud del camino minimo
-            if (d_d_s[u] + c + d_a_t[v] < cm)
-            {
-                cm = d_d_s[u] + c + d_a_t[v];
-            }
-
-            if (d_d_s[v] + c + d_a_t[u] < cm)
-            {
-                cm = d_d_s[v] + c + d_a_t[u];
-            }
+        double ralo_cuadratico = 0;
+        double ralo_logn = 0;
+        double denso_cuadratico = 0;
+        double denso_logn = 0;
+        for(int it=0;it<repeat;it++){       
+            auto medicion_ralo = medir_instancia_ralo(n);
+            auto medicion_denso = medir_instancia_denso(n);
+            ralo_cuadratico += medicion_ralo.first;
+            ralo_logn += medicion_ralo.second;
+            denso_cuadratico += medicion_denso.first;
+            denso_logn += medicion_denso.second;
         }
-        if (cm != inf)
-        {
-            cout << cm << endl;
-        }
-        else
-        {
-            cout << -1 << endl;
-        }
+        ralo_cuadratico /= repeat;
+        ralo_logn /= repeat;
+        denso_cuadratico /= repeat;
+        denso_logn /= repeat;
+        output_file << n << "," << denso_logn << "," << ralo_logn << "," << denso_cuadratico << "," << ralo_cuadratico << "\n";
+        cout << n << endl;
     }
 
     return 0;
