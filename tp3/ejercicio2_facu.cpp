@@ -2,7 +2,7 @@
 #include <vector>
 #include <tuple>
 #include <queue>
-#include <bits/stdc++.h>
+#include <cstdio>
 
 using namespace std;
 int N,M,K,P;
@@ -63,42 +63,53 @@ int maxflow(int s, int t) {
 
 
 int main(){
-    ios_base::sync_with_stdio(false); //Hack para agilizar lectura de datos
-    cin.tie(NULL);
     while(true)
     {
-        cin >> N >> M;
+        scanf("%d %d", &N, &M);
         K = N;   //Nodo kruskal = fuente
         P = N+1; //Nodo prim    = sumidero
 
         if(N==0 and M==0) return 0;
 
-        capacity = vector<vector<int>>(N+2,vector<int>(N+2,1));
+        //capacity = matriz de capacidades (inicial 0)
+        //adj = lista de adyacencia (del grafo no dirigido)
+
+        capacity = vector<vector<int>>(N+2,vector<int>(N+2,0));
         adj = vector<vector<int>>(N+2);
 
         for(int i=0;i<N;i++)
         {
             int voto;
-            cin >> voto;
-            if(voto == 1)
+            scanf("%d",&voto);
+            //Si el voto es 0: el nodo está conectado a Kruskal
+            //Si el voto es 1: el nodo está conectado a Prim
+            if(voto == 0)
             {
                 adj[K].push_back(i);
                 adj[i].push_back(K);
+                capacity[K][i] = 1;
+                capacity[i][K] = 1;
             }else
             {
                 adj[i].push_back(P);
                 adj[P].push_back(i);
+                capacity[i][P] = 1;
+                capacity[P][i] = 1;
             }
         }
         for(int k = 0;k<M;k++)
         {
             int i, j;
-            cin >> i >> j;
+            scanf("%d %d", &i, &j);
             i--;j--;
+            //Cada par de amigos está conectado entre sí
             adj[i].push_back(j);
             adj[j].push_back(i);
+            capacity[i][j] = 1;
+            capacity[j][i] = 1;
         }
-        //Busco el valor del corte mínimo en G.
-        cout << maxflow(K,P) << "\n";
+        //Busco el valor del corte mínimo en G, equivalente al flujo máximo.
+        auto res = maxflow(K,P);
+        printf("%d \n", res);
     }
 }
