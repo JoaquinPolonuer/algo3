@@ -180,7 +180,7 @@ int main()
     ofstream output_file;
     
     output_file.open("runtime.csv");
-    output_file << "n,denso_time_logn,ralo_time_logn,denso_time_cuadratico,ralo_time_cuadratico\n";
+    output_file << "n,denso_time_logn,ralo_time_logn,denso_time_cuadratico,ralo_time_cuadratico" << endl;
 
     // Itero por la cantidad de casos de prueba
     for (int n = 2; n < 10000; n += 500)
@@ -197,7 +197,7 @@ int main()
 
             ralo_cuadratico += medicion_ralo.first;
             ralo_logn += medicion_ralo.second;
-            
+
             denso_cuadratico += medicion_denso.first;
             denso_logn += medicion_denso.second;
         }
@@ -206,8 +206,8 @@ int main()
         ralo_logn /= repeat;
         denso_cuadratico /= repeat;
         denso_logn /= repeat;
-        
-        output_file << n << "," << denso_logn << "," << ralo_logn << "," << denso_cuadratico << "," << ralo_cuadratico << "\n";
+
+        output_file << n << "," << denso_logn << "," << ralo_logn << "," << denso_cuadratico << "," << ralo_cuadratico << endl;
         cout << n << endl;
     }
 
