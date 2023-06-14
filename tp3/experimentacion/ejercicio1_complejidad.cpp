@@ -147,7 +147,8 @@ pair<double, double> medir_instancia_ralo(int n)
 
     for (int i = 0; i < N; i++)
     {
-        for(int it = 0; it < 3; it++){
+        for (int it = 0; it < 3; it++)
+        {
             int xi, wi;
             xi = rand() % (N);
             wi = rand() % (1000);
@@ -156,11 +157,12 @@ pair<double, double> medir_instancia_ralo(int n)
             gt_aristas[xi].push_back({i, wi});
         }
     }
-    //Agrego camino de S a T para que siempre haya camino 3
-    for(int arista = 0; arista < N; arista++){
+    // Agrego camino de S a T para que siempre haya camino 3
+    for (int arista = 0; arista < N - 1; arista++)
+    {
         int peso = rand() % (1000);
-        g_aristas[arista].push_back({arista+1, peso});
-        gt_aristas[arista+1].push_back({arista, peso});
+        g_aristas[arista].push_back({arista + 1, peso});
+        gt_aristas[arista + 1].push_back({arista, peso});
     }
 
     s = 0;
@@ -186,7 +188,7 @@ int main()
 {
     int repeat = 5;
     ofstream output_file;
-    
+
     output_file.open("runtime.csv");
     output_file << "n,denso_time_logn,ralo_time_logn,denso_time_cuadratico,ralo_time_cuadratico" << endl;
 

@@ -20,8 +20,8 @@ vector<tuple<ll, ll, ll>> aristas_extra;
 
 vector<ll> dijkstra(vector<vector<pair<ll, ll>>> &g, ll s)
 {
-    vector<ll> d = vector<ll>(g.size(), inf);
-    vector<bool> processed = vector<bool>(g.size(), false);
+    vector<ll> d = vector<ll>(N, inf);
+    vector<bool> processed = vector<bool>(N, false);
 
     queue<pair<ll, ll>> q;
 

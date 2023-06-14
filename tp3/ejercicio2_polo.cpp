@@ -43,6 +43,7 @@ ll bfs(ll s, ll t, vector<ll>& parent) {
     return 0;
 }
 
+// Implementacion de https://cp-algorithms.com/graph/edmonds_karp.html#implementation
 ll flujo_maximo(ll s, ll t) {
     ll flow = 0;
     vector<ll> parent(N+2);
@@ -75,6 +76,11 @@ int main()
             break;
         }
 
+        // Vamos a crear la lista de nodos adyacentes para cada nodo.
+        // Consideramos que S=0 y T=N+1.
+        // Ademas, creamos una matriz que indica la capacidad de una
+        // arista en la red residual, lo hacemos de esta manera porque
+        // es compatible con la implementacion usada de E&K.
         vecinos = vector<vector<ll>>(N + 2);
         capacidad_residual = vector<vector<ll>>(N + 2, vector<ll>(N + 2, 0));
 
@@ -92,6 +98,8 @@ int main()
                 conexion = N + 1;
             }
 
+            // Conectamos los que votan 0 a s y los que votan
+            // 1 a t, siempre con capacidad 1.
             vecinos[conexion].push_back(i);
             vecinos[i].push_back(conexion);
 
@@ -103,6 +111,7 @@ int main()
         {
             scanf("%lld %lld", &i, &j);
 
+            // Conectamos los amigos entre sí.
             vecinos[i].push_back(j);
             vecinos[j].push_back(i);
 
@@ -110,6 +119,8 @@ int main()
             capacidad_residual[j][i] = 1;
         }
 
+        // La cantidad minima de disconformidades va a ser igual
+        // al valor de corte minimo, que es igual al flujo maximo.
         cout << flujo_maximo(0, N + 1) << endl;
     }
 
